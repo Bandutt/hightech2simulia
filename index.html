@@ -1,0 +1,1216 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SIMULIA High-Tech Industry Dashboard</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+[data-theme="light"]{
+  --bg:#f7f6f3;--surface:#ffffff;--surf2:#f0efec;--surf3:#e8e7e3;
+  --t1:#181816;--t2:#52524e;--t3:#9a9990;
+  --bd1:rgba(0,0,0,0.07);--bd2:rgba(0,0,0,0.13);--bd3:rgba(0,0,0,0.22);
+  --accent:#185fa5;--accent-bg:#e6f1fb;--accent-bd:#85b7eb;
+}
+[data-theme="dark"]{
+  --bg:#111110;--surface:#1c1c1a;--surf2:#252523;--surf3:#2e2e2b;
+  --t1:#e8e7e2;--t2:#9a9990;--t3:#5a5a56;
+  --bd1:rgba(255,255,255,0.06);--bd2:rgba(255,255,255,0.12);--bd3:rgba(255,255,255,0.20);
+  --accent:#7bb8e8;--accent-bg:#0c2a42;--accent-bd:#2a5f8a;
+}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Helvetica Neue',sans-serif;background:var(--bg);color:var(--t1);font-size:13px;line-height:1.5;min-height:100vh;transition:background 0.2s,color 0.2s}
+.shell{display:flex;height:100vh;overflow:hidden}
+.sidebar{width:248px;flex-shrink:0;background:var(--surface);border-right:0.5px solid var(--bd2);display:flex;flex-direction:column;overflow-y:auto;transition:width 0.25s ease,background 0.2s,margin-left 0.25s ease}
+.sidebar.collapsed{width:0;margin-left:0;border-right:none;overflow:hidden}
+.sidebar > *{transition:opacity 0.15s}
+.sidebar.collapsed > *{opacity:0;pointer-events:none}
+.sb-toggle{display:flex;align-items:center;gap:6px;background:var(--surf2);border:0.5px solid var(--bd2);border-radius:20px;padding:4px 11px;cursor:pointer;font-size:11px;color:var(--t2);transition:background 0.15s;user-select:none}
+.sb-toggle:hover{background:var(--surf3)}
+.sb-toggle-icon{font-size:13px;line-height:1;display:inline-block;transition:transform 0.25s}
+.sidebar.collapsed ~ main .sb-toggle-icon{transform:rotate(180deg)}
+.main{flex:1;overflow-y:auto;padding:20px 24px;min-width:0}
+.top-bar{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;padding-bottom:14px;border-bottom:0.5px solid var(--bd2)}
+.top-bar-left h1{font-size:15px;font-weight:600;color:var(--t1)}
+.top-bar-left p{font-size:11px;color:var(--t3);margin-top:1px}
+.top-bar-right{display:flex;align-items:center;gap:8px}
+.theme-toggle{display:flex;align-items:center;gap:6px;background:var(--surf2);border:0.5px solid var(--bd2);border-radius:20px;padding:4px 11px;cursor:pointer;font-size:11px;color:var(--t2);transition:background 0.15s;user-select:none}
+.theme-toggle:hover{background:var(--surf3)}
+.badge{font-size:10px;font-weight:500;padding:3px 9px;border-radius:20px;background:#e1f5ee;color:#0f6e56;border:0.5px solid #5dcaa5}
+.sb-section{padding:8px 12px 2px}
+.sb-label{font-size:9px;font-weight:700;letter-spacing:0.10em;text-transform:uppercase;color:var(--t3);margin-bottom:4px;padding-left:4px}
+.sb-industry{font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:5px;padding:4px 8px;border-radius:6px;display:inline-block}
+.sb-ind-semi{background:#e6f1fb;color:#185fa5}
+.sb-ind-disp{background:#fbeaf0;color:#993556}
+.sb-ind-mob{background:#eeedfe;color:#534ab7}
+.sb-ind-bat{background:#e1f5ee;color:#0f6e56}
+[data-theme="dark"] .sb-ind-semi{background:#0c2a42;color:#7bb8e8}
+[data-theme="dark"] .sb-ind-disp{background:#2a0f1a;color:#f4c0d1}
+[data-theme="dark"] .sb-ind-mob{background:#1a1832;color:#b5b0e8}
+[data-theme="dark"] .sb-ind-bat{background:#0a2a20;color:#7bd4ad}
+.nav-item{display:flex;align-items:flex-start;gap:8px;padding:6px 10px;border-radius:8px;cursor:pointer;margin-bottom:1px;transition:background 0.12s;border:0.5px solid transparent}
+.nav-item:hover{background:var(--surf2)}
+.nav-item.active{background:var(--accent-bg);border-color:var(--accent-bd)}
+.nav-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:4px}
+.nav-label{font-size:12px;color:var(--t1);line-height:1.3}
+.nav-sub{font-size:10px;color:var(--t3);margin-top:1px}
+.nav-item.active .nav-label{color:var(--accent);font-weight:500}
+.sb-divider{height:0.5px;background:var(--bd1);margin:6px 12px}
+.sec-lbl{font-size:10px;font-weight:600;letter-spacing:0.09em;text-transform:uppercase;color:var(--t3);margin-bottom:10px}
+/* Industry banner */
+.ind-banner{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:11px;margin-bottom:14px;border:0.5px solid var(--bd1)}
+.ind-banner-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;flex-shrink:0}
+.ind-banner-text{flex:1}
+.ind-banner-title{font-size:13px;font-weight:600;color:var(--t1)}
+.ind-banner-sub{font-size:11px;color:var(--t3);margin-top:1px}
+.ind-banner-cnt{font-size:11px;color:var(--t2);background:var(--surf2);padding:3px 10px;border-radius:14px;font-weight:500}
+/* Application tags */
+.app-tags{display:flex;flex-wrap:wrap;gap:3px;margin-top:6px}
+.app-tag{font-size:9px;font-weight:500;padding:2px 7px;border-radius:8px;border:0.5px solid var(--bd1);background:var(--surf2);color:var(--t2);white-space:nowrap}
+.app-tag-cpu{background:#fde7e7;color:#a32d2d;border-color:#a32d2d33}
+.app-tag-gpu{background:#e8e3fc;color:#534ab7;border-color:#534ab733}
+.app-tag-npu{background:#fce8f0;color:#993556;border-color:#99355633}
+.app-tag-hbm{background:#dde9f8;color:#185fa5;border-color:#185fa533}
+.app-tag-dram{background:#d4e7fa;color:#0d4f8f;border-color:#0d4f8f33}
+.app-tag-nand{background:#e2f0d6;color:#3b6d11;border-color:#3b6d1133}
+.app-tag-oled{background:#fbe1ea;color:#993556;border-color:#99355633}
+.app-tag-mled{background:#fce6d9;color:#9a4a0c;border-color:#9a4a0c33}
+.app-tag-fold{background:#f0e2fb;color:#6b3aa6;border-color:#6b3aa633}
+.app-tag-auto{background:#dbeae3;color:#0f6e56;border-color:#0f6e5633}
+.app-tag-phone{background:#e6f1fb;color:#185fa5;border-color:#185fa533}
+.app-tag-wear{background:#f7e6d3;color:#854f0b;border-color:#854f0b33}
+.app-tag-bat{background:#d6f0e0;color:#136d3a;border-color:#136d3a33}
+.app-tag-ev{background:#dff0e6;color:#0f6e56;border-color:#0f6e5633}
+[data-theme="dark"] .app-tag-cpu{background:#3a1212;color:#f0a0a0}
+[data-theme="dark"] .app-tag-gpu{background:#1f1a3a;color:#b5b0e8}
+[data-theme="dark"] .app-tag-npu{background:#3a1325;color:#f0c0d4}
+[data-theme="dark"] .app-tag-hbm{background:#102438;color:#9ec5e8}
+[data-theme="dark"] .app-tag-dram{background:#0d1d2e;color:#7eb1e0}
+[data-theme="dark"] .app-tag-nand{background:#1c2a0e;color:#b5d68f}
+[data-theme="dark"] .app-tag-oled{background:#3a1525;color:#f0a8c5}
+[data-theme="dark"] .app-tag-mled{background:#3a1f0e;color:#e8b88a}
+[data-theme="dark"] .app-tag-fold{background:#241638;color:#c9a8e8}
+[data-theme="dark"] .app-tag-auto{background:#0e2a22;color:#88c8b0}
+[data-theme="dark"] .app-tag-phone{background:#102438;color:#9ec5e8}
+[data-theme="dark"] .app-tag-wear{background:#2e1f0a;color:#d8b58a}
+[data-theme="dark"] .app-tag-bat{background:#0e2a18;color:#90d5b0}
+[data-theme="dark"] .app-tag-ev{background:#0c2a1c;color:#85cca8}
+/* match cards */
+.match-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
+.match-card{background:var(--surface);border:0.5px solid var(--bd1);border-radius:11px;overflow:hidden}
+.match-pain{padding:9px 12px;border-bottom:0.5px solid var(--bd1);display:flex;gap:8px;align-items:flex-start;background:var(--surf2)}
+.m-icon-p{width:17px;height:17px;border-radius:50%;background:#fcebeb;flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center;font-size:9px;color:#a32d2d;font-weight:700}
+.match-pain-text{font-size:11px;color:var(--t2);line-height:1.45}
+.match-sol{padding:9px 12px;display:flex;gap:8px;align-items:flex-start}
+.m-icon-s{width:17px;height:17px;border-radius:50%;background:#e1f5ee;flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center;font-size:9px;color:#0f6e56;font-weight:700}
+.match-sol-title{font-size:12px;font-weight:500;color:var(--t1);margin-bottom:2px}
+.match-sol-desc{font-size:11px;color:var(--t2);line-height:1.4}
+/* proc steps */
+.proc-row{display:flex;flex-wrap:wrap;align-items:center;gap:0}
+.proc-step{display:flex;align-items:center;gap:5px;background:var(--surface);border:0.5px solid var(--bd2);border-radius:8px;padding:6px 10px;margin-right:4px;margin-bottom:6px}
+.ptool{font-size:9px;font-weight:600;padding:1px 6px;border-radius:10px}
+.t-abq{background:#e6f1fb;color:#185fa5}
+.t-safe{background:#faeeda;color:#854f0b}
+.t-isight{background:#eeedfe;color:#534ab7}
+.t-tosca{background:#e1f5ee;color:#0f6e56}
+.t-python{background:#e8f3de;color:#3b6d11}
+.t-ml{background:#fbeaf0;color:#993556}
+.t-3dx{background:#f1eefe;color:#534ab7}
+.t-tcad{background:#faeeda;color:#633806}
+.t-cst{background:#e0eef7;color:#0d4f8f}
+.pname{font-size:11px;color:var(--t1)}
+.parr{color:var(--t3);font-size:11px;margin-right:4px;margin-bottom:6px}
+/* stat */
+.stat-row{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-bottom:16px}
+.stat-card{background:var(--surface);border:0.5px solid var(--bd1);border-radius:10px;padding:12px 10px;text-align:center}
+.stat-num{font-size:22px;font-weight:600;color:var(--t1);letter-spacing:-0.5px}
+.stat-lbl{font-size:10px;color:var(--t3);margin-top:3px;line-height:1.3}
+/* overview */
+.ov-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-bottom:16px}
+.ov-card{background:var(--surface);border:0.5px solid var(--bd1);border-radius:11px;padding:12px 14px;cursor:pointer;transition:border-color 0.15s,transform 0.15s}
+.ov-card:hover{border-color:var(--bd3);transform:translateY(-1px)}
+.ov-top{display:flex;align-items:center;gap:8px;margin-bottom:7px}
+.ov-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.ov-title{font-size:13px;font-weight:500;color:var(--t1)}
+.ov-cnt{margin-left:auto;font-size:10px;color:var(--t3);background:var(--surf2);padding:1px 7px;border-radius:10px}
+.ov-desc{font-size:11px;color:var(--t2);line-height:1.4}
+.ov-tags{display:flex;flex-wrap:wrap;gap:4px;margin-top:8px}
+.ov-ttag{font-size:9px;font-weight:500;padding:2px 7px;border-radius:10px}
+/* ML */
+.ml-highlight{border:0.5px solid rgba(212,83,126,0.3);border-radius:11px;padding:14px 16px;margin-bottom:16px;background:var(--surf2)}
+.ml-hl-head{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.ml-badge{font-size:10px;font-weight:600;padding:2px 9px;border-radius:20px;background:#fbeaf0;color:#72243e;border:0.5px solid #d4537e44}
+[data-theme="dark"] .ml-badge{background:#2a0f1a;color:#f4c0d1}
+.ml-hl-title{font-size:13px;font-weight:500;color:var(--t1)}
+.ml-hl-desc{font-size:12px;color:var(--t2);line-height:1.6}
+.ml-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-bottom:16px}
+.ml-card{background:var(--surface);border:0.5px solid var(--bd1);border-radius:10px;padding:11px 12px}
+.ml-tag{font-size:9px;font-weight:700;letter-spacing:0.07em;text-transform:uppercase;color:var(--t3);margin-bottom:4px}
+.ml-title{font-size:12px;font-weight:500;color:var(--t1);margin-bottom:3px}
+.ml-desc{font-size:11px;color:var(--t2);line-height:1.4;margin-bottom:8px}
+/* detail header */
+.dh{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:16px}
+.dh-title{font-size:17px;font-weight:600;color:var(--t1)}
+.dh-sub{font-size:12px;color:var(--t3);margin-top:3px}
+.dh-tag{font-size:10px;font-weight:500;padding:3px 10px;border-radius:20px;white-space:nowrap;margin-left:12px;margin-top:3px}
+.dh-apps{display:flex;flex-wrap:wrap;gap:4px;margin-top:8px}
+.proc-section{margin-bottom:16px}
+/* JEDEC table */
+.jedec-table{width:100%;border-collapse:collapse;margin-bottom:16px;font-size:11px}
+.jedec-table th{background:var(--surf2);color:var(--t2);font-weight:600;padding:8px 10px;text-align:left;border-bottom:0.5px solid var(--bd2);font-size:10px;letter-spacing:0.05em;text-transform:uppercase}
+.jedec-table td{padding:8px 10px;border-bottom:0.5px solid var(--bd1);color:var(--t2);vertical-align:top;line-height:1.4}
+.jedec-table tr:last-child td{border-bottom:none}
+.jedec-table tr:hover td{background:var(--surf2)}
+.jedec-std{font-weight:600;color:var(--t1);white-space:nowrap}
+.jedec-badge{display:inline-block;font-size:9px;font-weight:600;padding:2px 7px;border-radius:10px;white-space:nowrap}
+.jb-thermal{background:#fcebeb;color:#a32d2d}
+.jb-moist{background:#e6f1fb;color:#185fa5}
+.jb-mech{background:#faeeda;color:#854f0b}
+.jb-drop{background:#eeedfe;color:#534ab7}
+.jb-hast{background:#e1f5ee;color:#0f6e56}
+/* info box */
+.info-box{background:var(--surf2);border-left:3px solid var(--accent-bd);border-radius:0 8px 8px 0;padding:10px 14px;margin-bottom:14px;font-size:11px;color:var(--t2);line-height:1.6}
+.info-box b{color:var(--t1)}
+/* tcad flow */
+.tcad-flow{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;margin-bottom:16px}
+.tcad-step{background:var(--surface);border:0.5px solid var(--bd1);border-radius:10px;padding:10px 10px;text-align:center}
+.tcad-step-num{font-size:10px;font-weight:700;color:var(--t3);margin-bottom:4px}
+.tcad-step-title{font-size:11px;font-weight:500;color:var(--t1);margin-bottom:3px}
+.tcad-step-desc{font-size:10px;color:var(--t2);line-height:1.4}
+.tcad-arrow{display:flex;align-items:center;justify-content:center;color:var(--t3);font-size:16px;padding-top:20px}
+/* Industry summary */
+.ind-summary-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:16px}
+.ind-summary-card{background:var(--surface);border:0.5px solid var(--bd1);border-radius:11px;padding:14px;cursor:pointer;transition:border-color 0.15s,transform 0.15s,box-shadow 0.15s;position:relative;overflow:hidden}
+.ind-summary-card:hover{border-color:var(--bd3);transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,0.06)}
+.ind-summary-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px}
+.ind-summary-card.semi::before{background:#185fa5}
+.ind-summary-card.disp::before{background:#993556}
+.ind-summary-card.mob::before{background:#534ab7}
+.ind-summary-card.bat::before{background:#0f6e56}
+.ind-summary-icon{font-size:20px;margin-bottom:8px}
+.ind-summary-title{font-size:14px;font-weight:600;color:var(--t1);margin-bottom:3px}
+.ind-summary-sub{font-size:10px;color:var(--t3);margin-bottom:8px;line-height:1.4}
+.ind-summary-meta{font-size:10px;color:var(--t2);display:flex;gap:8px}
+.ind-summary-meta span{background:var(--surf2);padding:2px 8px;border-radius:8px}
+</style>
+</head>
+<body>
+<div class="shell">
+<aside class="sidebar">
+  <div class="sb-section" style="padding-top:14px">
+    <div class="sb-label">Overview</div>
+    <div class="nav-item active" onclick="go(-1,this)" id="nav--1">
+      <div class="nav-dot" style="background:var(--t3)"></div>
+      <div><div class="nav-label">전체 보기 (4 Industries)</div></div>
+    </div>
+  </div>
+  <div class="sb-divider"></div>
+
+  <!-- SEMICONDUCTOR -->
+  <div class="sb-section">
+    <div class="sb-industry sb-ind-semi">◆ Semiconductor</div>
+  </div>
+  <div class="sb-section" style="padding-top:0">
+    <div class="sb-label">디바이스 / 공정</div>
+    <div class="nav-item" onclick="go(10,this)" id="nav-10">
+      <div class="nav-dot" style="background:#633806"></div>
+      <div><div class="nav-label">TCAD 디바이스 설계</div><div class="nav-sub">공정 시뮬레이션 → FEA 연계</div></div>
+    </div>
+  </div>
+  <div class="sb-section" style="padding-top:0">
+    <div class="sb-label">JEDEC 신뢰성 시험</div>
+  </div>
+  <div id="rel-nav"></div>
+  <div class="sb-section" style="padding-top:0">
+    <div class="sb-label">Pain Point 영역</div>
+  </div>
+  <div id="nav-list-semi"></div>
+  <div class="sb-divider"></div>
+
+  <!-- DISPLAY -->
+  <div class="sb-section">
+    <div class="sb-industry sb-ind-disp">◆ Display</div>
+  </div>
+  <div id="nav-list-disp"></div>
+  <div class="sb-divider"></div>
+
+  <!-- MOBILE DEVICE -->
+  <div class="sb-section">
+    <div class="sb-industry sb-ind-mob">◆ Mobile Device</div>
+  </div>
+  <div id="nav-list-mob"></div>
+  <div class="sb-divider"></div>
+
+  <!-- BATTERY -->
+  <div class="sb-section">
+    <div class="sb-industry sb-ind-bat">◆ Battery / ESS</div>
+  </div>
+  <div id="nav-list-bat"></div>
+  <div class="sb-divider"></div>
+
+  <div class="sb-section">
+    <div class="sb-label">ML / DL</div>
+    <div class="nav-item" onclick="go(99,this)" id="nav-99">
+      <div class="nav-dot" style="background:#d4537e"></div>
+      <div><div class="nav-label">ML/DL 파이프라인</div><div class="nav-sub">Surrogate · AutoML · LLM</div></div>
+    </div>
+  </div>
+  <div class="sb-divider"></div>
+  <div class="sb-section">
+    <div class="sb-label">JEDEC Standards</div>
+    <div class="nav-item" onclick="go(98,this)" id="nav-98">
+      <div class="nav-dot" style="background:#185fa5"></div>
+      <div><div class="nav-label">JEDEC 규격 전체 목록</div><div class="nav-sub">JEP·JESD·JEITA 매핑</div></div>
+    </div>
+  </div>
+</aside>
+
+<main class="main">
+  <div class="top-bar">
+    <div class="top-bar-left" style="display:flex;align-items:center;gap:12px">
+      <div class="sb-toggle" onclick="toggleSidebar()" title="사이드바 토글">
+        <span class="sb-toggle-icon" id="sb-toggle-icon">◧</span>
+        <span id="sb-toggle-label">Hide</span>
+      </div>
+      <div>
+        <h1>SIMULIA — High-Tech Industry Simulation</h1>
+        <p>Semiconductor · Display · Mobile Device · Battery — Pain Point 솔루션 통합 대시보드</p>
+      </div>
+    </div>
+    <div class="top-bar-right">
+      <div class="theme-toggle" onclick="toggleTheme()"><span id="ti">☀</span><span id="tl">Light</span></div>
+      <div class="badge">3DDashboard Widget</div>
+    </div>
+  </div>
+  <div id="ca"></div>
+</main>
+</div>
+
+<script>
+/* ── Application tag definitions ── */
+const APP_TAGS = {
+  CPU:   {label:"CPU",        cls:"app-tag-cpu"},
+  GPU:   {label:"GPU",        cls:"app-tag-gpu"},
+  NPU:   {label:"NPU",        cls:"app-tag-npu"},
+  HBM:   {label:"HBM",        cls:"app-tag-hbm"},
+  DRAM:  {label:"DRAM",       cls:"app-tag-dram"},
+  NAND:  {label:"NAND",       cls:"app-tag-nand"},
+  OLED:  {label:"OLED",       cls:"app-tag-oled"},
+  MLED:  {label:"MiniLED",    cls:"app-tag-mled"},
+  FOLD:  {label:"Foldable",   cls:"app-tag-fold"},
+  AUTO:  {label:"Automotive", cls:"app-tag-auto"},
+  PHONE: {label:"Smartphone", cls:"app-tag-phone"},
+  WEAR:  {label:"Wearable",   cls:"app-tag-wear"},
+  BAT:   {label:"Battery",    cls:"app-tag-bat"},
+  EV:    {label:"EV / ESS",   cls:"app-tag-ev"}
+};
+
+/* ── Industries ── */
+const INDUSTRIES = {
+  semi: {key:"semi", label:"Semiconductor",   color:"#185fa5", icon:"◆", sub:"Memory · CPU · GPU · NPU 패키지/다이 신뢰성"},
+  disp: {key:"disp", label:"Display",         color:"#993556", icon:"◆", sub:"OLED · MiniLED · Foldable · Automotive Display"},
+  mob:  {key:"mob",  label:"Mobile Device",   color:"#534ab7", icon:"◆", sub:"Smartphone · Wearable 구조·열·낙하 신뢰성"},
+  bat:  {key:"bat",  label:"Battery / ESS",   color:"#0f6e56", icon:"◆", sub:"리튬이온 셀·팩, 열폭주, 진동, 충방전 수명"}
+};
+
+/* ── Reliability test domains (Semiconductor, id 20–24) ── */
+const REL=[
+  {id:20, industry:"semi",
+   label:"열충격 시험 (TST)",
+   sub:"JESD22-A104 · TCT",
+   color:"#e24b4a",
+   apps:["CPU","GPU","HBM","DRAM","NAND","NPU"],
+   jedec:"JESD22-A104 (Temperature Cycling), JESD22-A110 (Highly Accelerated Temperature Stress)",
+   jedec_cond:"조건 A: −55°C~+85°C / 조건 B: −55°C~+125°C / 조건 C: −65°C~+150°C, 각 15 min dwell, 10 min transfer",
+   tag:{t:"Thermal Shock",bg:"#fcebeb",c:"#a32d2d"},
+   desc:"급격한 온도 변화로 인한 솔더 조인트·계면 균열 및 피로 수명 예측",
+   pairs:[
+    {pain:"TCT 1000 사이클 시험에 수개월 소요, 설계 반복 불가",sol:"Abaqus 열사이클 FEA 자동화",desc:"JESD22-A104 조건 A/B/C 온도 프로파일 직접 입력, Anand 점소성으로 사이클당 소성 변형 에너지 자동 추출"},
+    {pain:"솔더 조인트 크리프 누적 손상을 선형 해석으로 과소평가",sol:"Abaqus Anand + fe-safe Coffin-Manson",desc:"비선형 크리프 모델로 사이클당 비가역 변형 에너지 계산 → fe-safe로 Nf 예측, 시험 대비 오차 15% 이내"},
+    {pain:"글로벌 패키지 모델로 솔더 범프 국소 응력 해상도 부족",sol:"Abaqus 글로벌-로컬 서브모델링",desc:"글로벌 탄성 모델로 전체 변형 계산 → 취약 범프 서브모델 자동 연결, 연산 효율 3~5× 향상"},
+    {pain:"TC 조건별 수명 변화 민감도 정량화 불가",sol:"Isight 조건별 파라미터 스윕",desc:"온도 범위·dwell time·경사 속도를 변수로 DOE → 수명 응답면(RSM) 구축, 최악 조건 자동 식별"}
+   ],
+   proc:[{t:"Abaqus",n:"JESD22-A104 온도 프로파일 입력",c:"t-abq"},{t:"Abaqus",n:"Anand 점소성 열사이클",c:"t-abq"},{t:"Abaqus",n:"서브모델링 국소 해석",c:"t-abq"},{t:"fe-safe",n:"Coffin-Manson / Verity 수명",c:"t-safe"},{t:"Isight",n:"조건별 DOE 스윕",c:"t-isight"},{t:"Python",n:"수명 통계 자동 보고",c:"t-python"}],
+   stats:["시험 대비 수명 오차 <15%","서브모델 정밀도 3–5×","TCT 1000 사이클→FEA 수 시간","설계 반복 속도 10×"]},
+
+  {id:21, industry:"semi",
+   label:"열방치 시험 (HTS/HTSL)",
+   sub:"JESD22-A103 · HTSL",
+   color:"#ba7517",
+   apps:["CPU","GPU","HBM","DRAM","NAND"],
+   jedec:"JESD22-A103 (High Temperature Storage Life), JESD22-B106 (Resistance to Soldering Heat)",
+   jedec_cond:"조건 B: +125°C / 조건 C: +150°C / 조건 D: +175°C, 1000h 이상 방치, 습도 비제어",
+   tag:{t:"HTS / HTSL",bg:"#faeeda",c:"#854f0b"},
+   desc:"고온 장시간 방치에 의한 금속간화합물(IMC) 성장 및 계면 열화 예측",
+   pairs:[
+    {pain:"고온 방치 중 IMC(Cu₆Sn₅, Cu₃Sn) 성장에 따른 계면 취화 모델링 어려움",sol:"Abaqus 확산-구조 연성 해석",desc:"Fick 확산 방정식으로 IMC 두께 성장 시뮬레이션, IMC 탄성계수·CTE 온도 의존성 반영"},
+    {pain:"1000h 방치 후 솔더 크리프 특성 변화가 FEA에 미반영",sol:"UMAT 시간 의존 재료 열화 모델",desc:"JESD22-A103 조건별 크리프 계수 열화 함수를 UMAT으로 구현, 장기 방치 후 취약점 자동 예측"},
+    {pain:"상온방치 후 TCT 복합 시험 시뮬레이션 순서 연계 불가",sol:"Abaqus 순차 해석 체인",desc:"HTS 잔류응력 → TCT 초기조건으로 이어받는 순차 FEA 체인, 복합 시험 순서 완전 재현"},
+    {pain:"IMC 두께와 접합 강도 간 상관관계 데이터 부재",sol:"Isight + Python 통계 회귀",desc:"IMC 두께 vs. 접합 강도 실험 데이터 입력 → 회귀 모델 구축 → 수명 예측 신뢰 구간 자동 산출"}
+   ],
+   proc:[{t:"Abaqus",n:"JESD22-A103 온도 조건 입력",c:"t-abq"},{t:"Abaqus",n:"IMC 확산-구조 연성",c:"t-abq"},{t:"Abaqus",n:"HTS→TCT 순차 해석",c:"t-abq"},{t:"fe-safe",n:"열화 후 피로수명 재평가",c:"t-safe"},{t:"Python",n:"IMC-강도 상관 분석",c:"t-python"},{t:"ML",n:"장기 열화 예측 모델",c:"t-ml"}],
+   stats:["IMC 두께 예측 오차 <10%","복합 시험 순서 완전 재현","장기 열화 수명 예측 정확도 >85%","1000h 시험→FEA 대체율 60%"]},
+
+  {id:22, industry:"semi",
+   label:"습도/수분 시험 (MSL/HAST)",
+   sub:"JESD22-A113 · JESD22-A110",
+   color:"#185fa5",
+   apps:["CPU","GPU","HBM","DRAM","NAND","NPU"],
+   jedec:"JESD22-A113 (Preconditioning of Nonhermetic Devices), JESD22-A110 (HAST), J-STD-020 (MSL Classification)",
+   jedec_cond:"MSL 1~6 / HAST: 130°C 85%RH, 96h / Preconditioning: 125°C bake → 60°C/60%RH soak → 3× reflow",
+   tag:{t:"Moisture / MSL",bg:"#e6f1fb",c:"#185fa5"},
+   desc:"흡습 후 리플로우 시 패키지 내부 수증기압에 의한 파괴(Popcorn crack) 예측",
+   pairs:[
+    {pain:"리플로우 중 패키지 내부 수증기압에 의한 Popcorn crack 예측 불가",sol:"Abaqus 흡습-열-구조 연성",desc:"J-STD-020 MSL 조건으로 수분 확산 해석 → 리플로우 시 수증기압 계산 → 임계 압력 초과 위치 자동 검출"},
+    {pain:"HAST 조건에서 계면 접착 강도 저하 모델링 어려움",sol:"Abaqus 수분 의존 CZM",desc:"흡습 농도를 계면 파괴 에너지 Gc 저하 함수로 정의, JESD22-A110 130°C/85%RH 조건 직접 재현"},
+    {pain:"MSL 등급별 안전 설계 조건 정량화 불가",sol:"Isight MSL 조건 DOE",desc:"MSL 1~6 흡습 조건을 파라미터화 → 수증기압·계면 응력 응답면 구축 → 안전 설계 한계 자동 도출"},
+    {pain:"수분+열+구조 복합 현상을 각 부서가 별도 해석해 상관관계 불명확",sol:"Abaqus 다물리 연성 단일 모델",desc:"흡습 확산·열전달·구조 변형을 단일 Abaqus 모델에서 순차 연성, 부서 간 데이터 전달 오류 제거"}
+   ],
+   proc:[{t:"Abaqus",n:"J-STD-020 흡습 확산 해석",c:"t-abq"},{t:"Abaqus",n:"수증기압-구조 연성",c:"t-abq"},{t:"Abaqus",n:"수분 의존 CZM",c:"t-abq"},{t:"Isight",n:"MSL 조건 DOE",c:"t-isight"},{t:"fe-safe",n:"흡습 후 피로수명 평가",c:"t-safe"},{t:"Python",n:"MSL 등급 자동 분류",c:"t-python"}],
+   stats:["Popcorn crack 발생 위치 예측 >88%","수증기압 오차 <12%","MSL 등급 자동 분류 정확도 >90%","HAST 조건 FEA 대체 가능"]},
+
+  {id:23, industry:"semi",
+   label:"낙하/충격 시험 (Drop Test)",
+   sub:"JESD22-B111 · JESD22-B110",
+   color:"#534ab7",
+   apps:["CPU","GPU","HBM","DRAM","NAND","NPU"],
+   jedec:"JESD22-B111 (Board Level Drop Test), JESD22-B110 (Mechanical Shock), IPC/JEDEC-9702",
+   jedec_cond:"JESD22-B111: 1500G / 0.5ms half-sine, 보드 장착 상태, 낙하 방향 3축 각 30회",
+   tag:{t:"Drop / Shock",bg:"#eeedfe",c:"#534ab7"},
+   desc:"보드 레벨 낙하 충격 시 솔더 조인트의 동적 응력 및 파손 예측",
+   pairs:[
+    {pain:"낙하 충격 시 솔더 조인트 파손 순서 및 위치 사전 예측 불가",sol:"Abaqus/Explicit 동적 해석",desc:"JESD22-B111 1500G/0.5ms half-sine 충격 입력, 솔더 조인트 동적 응력·변형률 전 사이클 추적"},
+    {pain:"보드 굽힘과 솔더 조인트 파손 간 상관관계 정량화 어려움",sol:"Abaqus 보드-패키지 연성 모델",desc:"PCB 동적 굽힘 → 솔더 조인트 피크 응력 자동 추출, IPC/JEDEC-9702 굽힘 변형률 기준 검증"},
+    {pain:"Abaqus/Standard 정적 해석으로 낙하 관성 효과 무시",sol:"Abaqus/Explicit + 서브모델링",desc:"전체 보드 Explicit 동적 해석 → 솔더 조인트 서브모델로 국소 파손 상세 해석, 계산 효율 최적화"},
+    {pain:"낙하 방향(X/Y/Z) 3축 시험 조건 반복 설정에 많은 시간 소요",sol:"Isight + Python 3축 자동화",desc:"낙하 방향·높이·보드 경계조건 파라미터화 → JESD22-B111 전 조건 자동 배치 실행, 파손 위험 맵 자동 생성"}
+   ],
+   proc:[{t:"Abaqus",n:"JESD22-B111 충격 입력 (Explicit)",c:"t-abq"},{t:"Abaqus",n:"보드-패키지 동적 연성",c:"t-abq"},{t:"Abaqus",n:"솔더 서브모델 파손 해석",c:"t-abq"},{t:"fe-safe",n:"충격 피로 수명 평가",c:"t-safe"},{t:"Isight",n:"3축 조건 자동화",c:"t-isight"},{t:"Python",n:"파손 위험 맵 생성",c:"t-python"}],
+   stats:["파손 위치 예측 정확도 >82%","3축 조건 자동화 100%","Explicit 해석 수렴 안정성 ↑","시험 대비 피크 응력 오차 <12%"]},
+
+  {id:24, industry:"semi",
+   label:"굽힘/기계적 충격 (Bend/Shock)",
+   sub:"JESD22-B113 · IPC-9702",
+   color:"#0f6e56",
+   apps:["CPU","GPU","HBM","DRAM","NAND"],
+   jedec:"JESD22-B113 (Board Level Cyclic Bend), IPC/JEDEC-9702 (Monotonic Bend), JESD22-B104 (Mechanical Shock)",
+   jedec_cond:"JESD22-B113: ±1~4mm 변위, 1Hz, 1000 사이클 / IPC-9702: 단조 굽힘 3점·4점 지지",
+   tag:{t:"Bend / Shock",bg:"#e1f5ee",c:"#0f6e56"},
+   desc:"반복 굽힘 및 기계적 충격에 의한 보드 레벨 솔더 조인트 피로 해석",
+   pairs:[
+    {pain:"반복 굽힘 피로와 열피로를 별도 해석해 복합 하중 효과 반영 불가",sol:"Abaqus + fe-safe 복합 하중",desc:"열사이클 + 기계적 굽힘 복합 하중 이력을 fe-safe에 순차 입력, 손상 누적(Miner's rule) 자동 계산"},
+    {pain:"IPC-9702 단조 굽힘 시험 vs. FEA 파손 하중 불일치",sol:"Abaqus 비선형 접촉 + CZM",desc:"솔더 조인트 비선형 접촉, 기판 적층 구조 비선형 거동, CZM 계면 파단을 단일 모델에서 재현"},
+    {pain:"JESD22-B113 반복 굽힘 피로 수명 예측 기준 데이터 부재",sol:"fe-safe 굽힘 피로 전용 설정",desc:"굽힘 변형률 이력을 fe-safe 입력으로 직접 사용, 솔더 조인트별 Nf 자동 계산 및 분포 도출"},
+    {pain:"설계 변경(기판 두께·재료) 시 굽힘 강성 재평가 반복 소요",sol:"Isight + Python 설계 탐색",desc:"기판 두께·적층 구성·패드 크기를 변수로 DOE → 굽힘 강성·피로수명 동시 최적화"}
+   ],
+   proc:[{t:"Abaqus",n:"JESD22-B113 반복 굽힘 입력",c:"t-abq"},{t:"Abaqus",n:"비선형 접촉 + CZM",c:"t-abq"},{t:"fe-safe",n:"복합 하중 피로 수명",c:"t-safe"},{t:"Isight",n:"설계 변수 DOE",c:"t-isight"},{t:"Python",n:"Miner 손상 누적 자동화",c:"t-python"}],
+   stats:["복합 하중 피로수명 예측 오차 <18%","단조 굽힘 파손 하중 일치율 >85%","반복 굽힘 Nf 자동 산출","기판 최적 설계 자동 탐색"]}
+];
+
+/* ── Pain Point domains (multi-industry) ── */
+const D=[
+  /* ====== SEMICONDUCTOR ====== */
+  {id:0, industry:"semi",
+   label:"Thermal management",sub:"발열 · 핫스팟 · TIM",color:"#e24b4a",
+   apps:["CPU","GPU","NPU","HBM"],
+   tag:{t:"Thermal",bg:"#fcebeb",c:"#a32d2d"},tools:["Abaqus","Isight","fe-safe"],
+   desc:"전력 밀도 증가에 따른 핫스팟, 계면 열저항, 냉각 경로 설계",
+   pairs:[
+    {pain:"칩-기판 계면 열저항으로 인한 핫스팟 집중 예측 어려움",sol:"Abaqus 열-구조 연성 해석",desc:"열전도 + 접촉 열저항(TCC) 모델로 핫스팟 위치 및 온도 구배 정밀 예측"},
+    {pain:"언더필·TIM 재료별 방열 성능 비교 데이터 부재",sol:"Isight 재료 파라미터 스윕",desc:"열전도율·점도·두께를 변수로 DOE → 최적 TIM 스펙 자동 도출"},
+    {pain:"패키지 스택 구조에서 열경로 차단 지점 시각화 불가",sol:"Abaqus 3D 열유동 해석",desc:"복층 패키지 전 단면 온도장 출력, 열저항 네트워크 자동 추출"},
+    {pain:"열 사이클 시 계면 열저항 변화 추적 불가",sol:"fe-safe 열피로 이력 추적",desc:"열사이클마다 접촉 상태 변화와 열저항 drift를 ODB에서 직접 추출"}
+   ],
+   proc:[{t:"Abaqus",n:"열-구조 연성 모델",c:"t-abq"},{t:"Abaqus",n:"핫스팟·온도구배 추출",c:"t-abq"},{t:"Isight",n:"TIM DOE 스윕",c:"t-isight"},{t:"fe-safe",n:"열피로 수명 평가",c:"t-safe"},{t:"Python",n:"결과 자동 보고",c:"t-python"}],
+   stats:["열저항 예측 오차 <10%","핫스팟 위치 일치율 >90%","DOE 실험 70% 감소","시험-해석 R²>0.95"]},
+
+  {id:1, industry:"semi",
+   label:"Warpage control",sub:"CTE 불일치 · 워피지 · 잔류응력",color:"#ba7517",
+   apps:["CPU","GPU","HBM","DRAM","NAND"],
+   tag:{t:"Warpage",bg:"#faeeda",c:"#854f0b"},tools:["Abaqus","Isight"],
+   desc:"몰딩·리플로우·냉각 전 공정의 온도 이력 기반 뒤틀림 예측 및 제어",
+   pairs:[
+    {pain:"EMC 몰딩 후 화학적 수축(chemical shrinkage) 모델링 어려움",sol:"Abaqus 점소성 + 수축 모델",desc:"온도 의존 화학 수축률을 UMAT으로 정의, 몰딩 공정 잔류응력 초기조건 설정"},
+    {pain:"다층 구조 CTE 불일치로 인한 워피지 과소/과대 예측",sol:"Abaqus 열-구조 순차 연성",desc:"리플로우→냉각 전 온도 이력을 단계별로 이어받아 누적 변형 정확 계산"},
+    {pain:"Shadow Moiré 측정값과 FEA 결과 불일치 원인 파악 난항",sol:"Isight 재료상수 역해석 교정",desc:"측정 워피지를 목표값으로 CTE·E 역최적화 → 검증된 재료 파라미터 셋 확보"},
+    {pain:"설계 변경 시마다 워피지 재해석에 오랜 시간 소요",sol:"Isight + Python 자동화 루프",desc:"레이아웃 파라미터(두께·재료) 변경 → INP 자동 생성 → 결과 비교까지 무인 실행"}
+   ],
+   proc:[{t:"Abaqus",n:"공정 온도 이력 설정",c:"t-abq"},{t:"Abaqus",n:"CTE 워피지 해석",c:"t-abq"},{t:"Abaqus",n:"서브모델링 정밀화",c:"t-abq"},{t:"Isight",n:"재료 역해석 교정",c:"t-isight"},{t:"Python",n:"Moiré 비교 자동화",c:"t-python"}],
+   stats:["워피지 예측 오차 <15%","재해석 시간 60% 단축","역해석 수렴 <50 iter","설계 변수 탐색 10× 가속"]},
+
+  {id:2, industry:"semi",
+   label:"Solder / interconnect reliability",sub:"솔더 조인트 · 크리프 · 피로수명",color:"#1d9e75",
+   apps:["CPU","GPU","HBM","DRAM","NAND","NPU"],
+   tag:{t:"Solder",bg:"#e1f5ee",c:"#0f6e56"},tools:["Abaqus","fe-safe","Isight"],
+   desc:"SAC 솔더의 열피로 및 크리프 거동, JEDEC 규격 수명 예측",
+   pairs:[
+    {pain:"솔더 크리프·소성 동시 거동 → 선형 해석으로 수명 크게 과대평가",sol:"Abaqus Anand 점소성 모델",desc:"SAC305 크리프 계수 내장, 온도-속도 의존 비선형 거동 정밀 재현"},
+    {pain:"JEDEC TCT 조건별 수명 시험에 수개월 소요",sol:"fe-safe Coffin-Manson / Verity",desc:"ODB 소성 변형 이력 → 수명 예측 자동화, 시험 대비 15% 이내 오차"},
+    {pain:"솔더 조인트 크기·피치 변화 시 수명 영향 정량화 어려움",sol:"Isight 파라미터 DOE",desc:"조인트 높이·직경·피치를 변수로 수명 응답면(RSM) 구축 → 최적 범프 설계"},
+    {pain:"글로벌 모델로는 조인트 국소 응력 해상도 부족",sol:"Abaqus 서브모델링",desc:"패키지 글로벌 모델 → 취약 솔더 조인트 서브모델 자동 연결"}
+   ],
+   proc:[{t:"Abaqus",n:"Anand 점소성 설정",c:"t-abq"},{t:"Abaqus",n:"서브모델링 국소해석",c:"t-abq"},{t:"fe-safe",n:"Verity 솔더 피로수명",c:"t-safe"},{t:"Isight",n:"범프 DOE 최적화",c:"t-isight"},{t:"Python",n:"수명 분포 통계",c:"t-python"}],
+   stats:["피로수명 오차 <15%","서브모델 정밀도 3–5×","TCT 시뮬레이션 사이클 90% 단축","범프 최적 설계 자동 탐색"]},
+
+  {id:3, industry:"semi",
+   label:"Delamination / crack risk",sub:"계면 박리 · 크랙 전파 · CZM",color:"#e24b4a",
+   apps:["CPU","GPU","HBM","DRAM","NAND"],
+   tag:{t:"Fracture",bg:"#fcebeb",c:"#a32d2d"},tools:["Abaqus","fe-safe"],
+   desc:"EMC-다이, 기판-솔더 계면의 박리 및 크랙 개시·전파 예측",
+   pairs:[
+    {pain:"계면 박리 개시 위치 사전 예측 불가 → 시제품 실패 후 원인 분석",sol:"Abaqus Surface-based Cohesive",desc:"계면 파괴 에너지(Gc)와 강도를 입력, 박리 개시 위치·하중 자동 예측"},
+    {pain:"벌크 크랙과 계면 박리를 동일 모델에서 동시 해석 불가",sol:"Abaqus XFEM + CZM 복합",desc:"XFEM으로 벌크 크랙 전파, CZM으로 계면 박리를 단일 모델에서 동시 처리"},
+    {pain:"흡습(moisture) 후 계면 강도 저하 효과 모델링 어려움",sol:"Abaqus 흡습-구조 연성",desc:"흡습 농도 분포 → 계면 Gc 저하 함수 정의, 실제 신뢰성 시험 조건 재현"},
+    {pain:"TCT 중 크랙 전파 속도·방향 예측 어려움",sol:"fe-safe + XFEM 연계",desc:"열사이클 응력장 → 크랙 선단 에너지 해방률 계산 → 전파 방향·속도 예측"}
+   ],
+   proc:[{t:"Abaqus",n:"CZM 계면 파괴 모델",c:"t-abq"},{t:"Abaqus",n:"XFEM 크랙 전파",c:"t-abq"},{t:"Abaqus",n:"흡습-구조 연성",c:"t-abq"},{t:"fe-safe",n:"크랙 피로 진전 평가",c:"t-safe"},{t:"Python",n:"파괴 위험 맵 자동 생성",c:"t-python"}],
+   stats:["박리 개시 예측 정확도 >85%","XFEM 크랙 경로 일치율 >80%","흡습 모델 오차 <12%","해석→리포트 자동화 100%"]},
+
+  {id:4, industry:"semi",
+   label:"Yield / defect reduction",sub:"수율 · 공정 결함 · 통계 분석",color:"#185fa5",
+   apps:["CPU","GPU","HBM","DRAM","NAND","NPU"],
+   tag:{t:"Yield",bg:"#e6f1fb",c:"#185fa5"},tools:["Isight","Python","ML"],
+   desc:"공정 변동 및 재료 산포가 패키지 수율에 미치는 영향 정량화",
+   pairs:[
+    {pain:"공정 파라미터 산포(두께, 온도 프로파일)가 수율에 미치는 영향 불명확",sol:"Isight 몬테카를로 / 민감도 분석",desc:"주요 공정 변수의 통계 분포 정의 → 수율 영향 인자 순위화, 공차 설계 최적화"},
+    {pain:"불량 원인 분석에 다수의 재해석 필요 → 대응 지연",sol:"Python + ODB 자동 배치 처리",desc:"불량 케이스별 INP 자동 변형 → 배치 실행 → 응력/변형 비교 자동 보고서 생성"},
+    {pain:"설계 초기 단계에서 수율 영향 예측 데이터 부재",sol:"Isight DOE + 응답면 모델",desc:"소수의 FEA 실행으로 응답면 구축 → 설계 초기 수율 영향 예측 가능"},
+    {pain:"다변수 공정 최적화에 엔지니어 경험에만 의존",sol:"Isight NSGA-II 다목적 최적화",desc:"워피지·수명·비용을 동시 최적화하는 Pareto 프론트 자동 도출"}
+   ],
+   proc:[{t:"Isight",n:"DOE 설계",c:"t-isight"},{t:"Isight",n:"몬테카를로 수율 분석",c:"t-isight"},{t:"Isight",n:"NSGA-II 최적화",c:"t-isight"},{t:"Python",n:"배치 자동화",c:"t-python"},{t:"ML",n:"수율 예측 모델",c:"t-ml"}],
+   stats:["공정 변수 기여도 정량화","수율 예측 정확도 >90%","최적화 반복 80% 감소","불량 분석 대응 50% 단축"]},
+
+  {id:5, industry:"semi",
+   label:"Process optimization",sub:"공정 파라미터 · 설계 자동화",color:"#534ab7",
+   apps:["CPU","GPU","HBM","DRAM","NAND"],
+   tag:{t:"Process",bg:"#eeedfe",c:"#534ab7"},tools:["Isight","Tosca","Python","3DX"],
+   desc:"솔더 리플로우, 몰딩 조건, 기판 스택업 등 공정 조건 최적화",
+   pairs:[
+    {pain:"리플로우 온도 프로파일 최적화를 실험 반복에만 의존",sol:"Isight + Abaqus 자동 루프",desc:"리플로우 프로파일 파라미터화 → FEA 자동 실행 → 잔류응력 최소화 조건 탐색"},
+    {pain:"기판 레이어 스택업 설계 공간이 너무 넓어 탐색 불가",sol:"Tosca 위상·형상 최적화",desc:"응력·워피지 제약 하에 재료 배치 자동 최적화 → 혁신적 스택업 구조 도출"},
+    {pain:"복수의 공정 단계 간 데이터 전달이 수동 작업",sol:"Python 워크플로우 오케스트레이션",desc:"몰딩→리플로우→TCT 전 단계 INP 자동 체인, ODB 결과 자동 전달"},
+    {pain:"새 재료 도입 시 전체 공정 재검증 시간 과다",sol:"3DX 플랫폼 재료 DB 연동",desc:"재료 파라미터 변경 → 연동된 FEA 모델 자동 업데이트 → 재검증 결과 이력 보존"}
+   ],
+   proc:[{t:"Abaqus",n:"공정 이력 FEA 모델",c:"t-abq"},{t:"Tosca",n:"위상/형상 최적화",c:"t-tosca"},{t:"Isight",n:"리플로우 조건 최적화",c:"t-isight"},{t:"Python",n:"공정 체인 오케스트레이션",c:"t-python"},{t:"3DX",n:"재료 DB · 이력 관리",c:"t-3dx"}],
+   stats:["공정 조건 탐색 10× 가속","위상최적화 응력 30% 저감","수동 데이터 전달 제거","재검증 시간 65% 단축"]},
+
+  {id:6, industry:"semi",
+   label:"Material selection / calibration",sub:"재료 모델 · 역해석 · DB 구축",color:"#0f6e56",
+   apps:["CPU","GPU","HBM","DRAM","NAND"],
+   tag:{t:"Material",bg:"#e1f5ee",c:"#0f6e56"},tools:["Abaqus","Isight","Python","3DX"],
+   desc:"EMC·솔더·언더필 등 온도 의존 재료 모델 교정 및 데이터베이스화",
+   pairs:[
+    {pain:"공급업체 데이터시트와 실제 FEA 사용 재료 상수 간 불일치",sol:"Isight 역해석 교정",desc:"실측 변위·응력 데이터를 목표값으로 재료 상수 역최적화 → 검증된 파라미터 셋"},
+    {pain:"온도 의존 점소성 계수(Anand 9 constants) 실험 추출 어려움",sol:"Python + Isight Anand 자동 피팅",desc:"인장·크리프 시험 데이터 입력 → Anand 계수 자동 최적화 피팅, 오차 정량화"},
+    {pain:"재료 DB가 엔지니어 개인 파일로 분산 관리",sol:"3DX 중앙 재료 라이브러리",desc:"FEA 검증 완료 재료 파라미터를 플랫폼에 저장, 팀 전체 공유·버전 관리"},
+    {pain:"새 EMC 재료 선정 시 전체 해석 재실행 필요",sol:"Isight + Python 재료 스크리닝",desc:"후보 재료 목록 입력 → 자동 배치 해석 → 워피지·수명 비교표 자동 생성"}
+   ],
+   proc:[{t:"Python",n:"시험 데이터 전처리",c:"t-python"},{t:"Isight",n:"Anand/CTE 역해석 피팅",c:"t-isight"},{t:"Abaqus",n:"교정 재료로 검증 해석",c:"t-abq"},{t:"3DX",n:"재료 DB 등록·공유",c:"t-3dx"},{t:"ML",n:"재료-수명 예측 모델",c:"t-ml"}],
+   stats:["역해석 수렴 <50 iter","Anand 피팅 R²>0.98","재료 DB 공유율 100%","신재료 스크리닝 80% 가속"]},
+
+  {id:7, industry:"semi",
+   label:"SI / PI / EMI concern",sub:"신호 무결성 · 전원 · 전자기",color:"#d4537e",
+   apps:["CPU","GPU","HBM","DRAM","NPU"],
+   tag:{t:"SI/PI/EMI",bg:"#fbeaf0",c:"#993556"},tools:["Abaqus","Python","3DX"],
+   desc:"패키지 구조 변형이 신호/전원 무결성 및 EMI 특성에 미치는 영향 분석",
+   pairs:[
+    {pain:"워피지로 인한 via/trace 변형이 SI에 미치는 영향 정량화 불가",sol:"Abaqus 구조해석 → CST 연계",desc:"FEA 변형 형상 추출 → via/trace 좌표 업데이트 → CST Studio EM 시뮬레이션 입력값으로 전달"},
+    {pain:"전원 공급 경로의 열-구조 연성 저항 변화 추적 어려움",sol:"Abaqus 열-전기 연성 해석",desc:"Joule 발열 + 열팽창 + 접촉 저항 변화를 연성 모델로 동시 계산"},
+    {pain:"패키지 변형 후 EMI 쉴딩 성능 변화 예측 불가",sol:"Abaqus + CST 변형 형상 연계",desc:"구조 변형 완료 형상을 CST로 가져와 쉴딩 효과·방사 패턴 재계산"},
+    {pain:"열·기계·전기 다중 물리 해석을 각 부서가 별도로 수행해 데이터 단절",sol:"3DX 플랫폼 통합 워크플로우",desc:"구조·열·전기 해석 결과를 단일 플랫폼에 저장, 부서 간 실시간 데이터 공유"}
+   ],
+   proc:[{t:"Abaqus",n:"열-전기 연성 해석",c:"t-abq"},{t:"Abaqus",n:"구조 변형 형상 추출",c:"t-abq"},{t:"CST",n:"EM 솔버 연계",c:"t-cst"},{t:"3DX",n:"다물리 결과 통합",c:"t-3dx"},{t:"ML",n:"변형-SI 영향 예측",c:"t-ml"}],
+   stats:["열-전기 연성 오차 <8%","변형-SI 연계 자동화","EMI 재해석 시간 70% 단축","부서 간 데이터 실시간 공유"]},
+
+  /* ====== DISPLAY ====== */
+  {id:30, industry:"disp",
+   label:"Foldable Repetitive Bending Durability",sub:"폴더블 반복 굽힘 · 크리스 · 피로수명",color:"#993556",
+   apps:["FOLD","OLED","PHONE"],
+   tag:{t:"Foldable Fatigue",bg:"#fbeaf0",c:"#993556"},tools:["Abaqus","fe-safe","Isight"],
+   desc:"반복 폴딩 사이클에서 패널 및 힌지 구조의 피로 수명·크리스(crease) 예측",
+   pairs:[
+    {pain:"20만 회 이상 폴딩 시험에 수개월 소요, 설계 변경 시 매번 재시험 필요",sol:"Abaqus 비선형 굽힘 + fe-safe 피로해석",desc:"R=1~3mm 인폴딩/아웃폴딩 사이클 직접 모사, UTG·박막유리·PI 다층 구조의 사이클당 변형 에너지 자동 추출 → fe-safe로 Nf 예측"},
+    {pain:"Crease(접힘 자국) 잔류 변형 예측이 어려워 시제품 후 발견",sol:"Abaqus 점탄소성 + 누적 변형 추적",desc:"OLED·편광판·점착층의 시간 의존 viscoelastic 거동 정의, 사이클 누적 잔류 변형 정밀 추적, Optical 측정값 대비 오차 <15%"},
+    {pain:"힌지 구조의 응력 집중부와 패널 크랙 위치 동시 해석 불가",sol:"Abaqus 글로벌-로컬 서브모델링",desc:"전체 힌지 시스템 글로벌 해석 → 패널 굽힘 영역 서브모델 자동 연결, 응력 분포 3~5× 정밀화"},
+    {pain:"폴딩 반경(R)·온도·속도 조건 변화 영향 정량화에 막대한 시간",sol:"Isight 다변수 DOE + Surrogate",desc:"R·온도·속도·사이클 수를 변수로 응답면 구축, 최악 조건 자동 식별 — 시험 횟수 80%↓"}
+   ],
+   proc:[{t:"Abaqus",n:"다층 적층 폴딩 모델",c:"t-abq"},{t:"Abaqus",n:"점탄소성 사이클 해석",c:"t-abq"},{t:"Abaqus",n:"힌지 서브모델",c:"t-abq"},{t:"fe-safe",n:"고사이클 피로 Nf",c:"t-safe"},{t:"Isight",n:"폴딩 조건 DOE",c:"t-isight"},{t:"Python",n:"크리스 자동 평가",c:"t-python"}],
+   stats:["20만 사이클 시험 → FEA 24h","Crease 잔류변형 오차 <15%","피로수명 예측 정확도 >85%","시험 반복 80% 감소"]},
+
+  {id:31, industry:"disp",
+   label:"Multi-Layer Delamination / Interface Damage",sub:"초박형 적층 · 점착 계면 · CZM",color:"#e24b4a",
+   apps:["OLED","FOLD","MLED","PHONE"],
+   tag:{t:"Delamination",bg:"#fcebeb",c:"#a32d2d"},tools:["Abaqus","fe-safe"],
+   desc:"OLED 다층 적층 구조 및 OCA(점착) 계면의 박리·크랙 개시 예측",
+   pairs:[
+    {pain:"OCA·편광판·TFE 등 10+ 층 적층 구조에서 박리 시작점 예측 불가",sol:"Abaqus Surface-based CZM 다중 계면",desc:"각 계면별 Gc·강도 정의 → 폴딩·낙하·열충격 하중 하 박리 개시 위치·시점 자동 예측, 시험 일치율 >85%"},
+    {pain:"초박형(<50µm) UTG·CPI 필름의 미세 크랙 개시 모델링 어려움",sol:"Abaqus XFEM + 박막 셸 요소",desc:"두께 방향 변형률 구배 정밀 캡처, XFEM으로 크랙 자율 개시·전파 — 메쉬 의존성 제거"},
+    {pain:"고온·습도 후 점착층 강도 저하가 박리 위험에 미치는 영향 정량화 불가",sol:"Abaqus 흡습-구조 연성 + 환경 의존 CZM",desc:"수분 농도 → Gc 저하 함수 정의, 신뢰성 시험 조건(85°C/85%RH) 직접 재현"},
+    {pain:"개별 박리·크랙 사례를 수동 분석 → 설계 피드백 지연",sol:"Python 위험 맵 자동 생성",desc:"전 계면 ODB 결과 자동 후처리 → 박리 위험 히트맵 → 설계자 즉시 피드백"}
+   ],
+   proc:[{t:"Abaqus",n:"다층 적층 모델링",c:"t-abq"},{t:"Abaqus",n:"CZM 다중 계면 정의",c:"t-abq"},{t:"Abaqus",n:"XFEM 박막 크랙",c:"t-abq"},{t:"Abaqus",n:"흡습-구조 연성",c:"t-abq"},{t:"fe-safe",n:"계면 피로 진전",c:"t-safe"},{t:"Python",n:"박리 위험 맵",c:"t-python"}],
+   stats:["박리 위치 일치율 >85%","XFEM 크랙 경로 일치율 >80%","환경 시험 FEA 대체율 60%","위험 맵 자동화 100%"]},
+
+  {id:32, industry:"disp",
+   label:"Drop and External Impact Reliability",sub:"낙하 · 외부 충격 · 패널 파손",color:"#534ab7",
+   apps:["OLED","FOLD","MLED","PHONE","WEAR"],
+   tag:{t:"Drop / Impact",bg:"#eeedfe",c:"#534ab7"},tools:["Abaqus","fe-safe","Isight"],
+   desc:"낙하·충격 조건에서 디스플레이 패널 파손 및 구조 손상 최소화",
+   pairs:[
+    {pain:"1.2~1.8m 낙하 시 OLED 패널 파손 위치·메커니즘 사전 예측 불가",sol:"Abaqus/Explicit 풀-디바이스 동적 해석",desc:"디바이스 전체(프레임·패널·배터리) 모델링, 낙하 자세별 충격 파동 전파 추적, 패널 응력 피크 정밀 예측"},
+    {pain:"커버 글래스·UTG·OLED 적층 동적 파손 거동 모사 어려움",sol:"Abaqus 손상 모델(Damage Initiation/Evolution)",desc:"유리 취성 파괴 + 박막 점탄성 + 점착층 박리를 단일 Explicit 모델로 동시 처리"},
+    {pain:"낙하 자세(코너·엣지·플랫) 모든 시나리오 시험 불가능",sol:"Isight + Python 낙하 자세 자동화",desc:"낙하 각도·높이·표면 강성 파라미터화 → 수십 개 시나리오 자동 배치 실행 → 최악 케이스 자동 식별"},
+    {pain:"Pen drop·볼펜 충격 등 점하중 시험 시뮬레이션 데이터 부재",sol:"Abaqus 점하중 충격 + 서브모델링",desc:"JIS C 60068-2-75 등 표준 점하중 조건 직접 입력, 패널 국소 변형 정밀 해석"}
+   ],
+   proc:[{t:"Abaqus",n:"풀-디바이스 모델",c:"t-abq"},{t:"Abaqus",n:"Explicit 동적 해석",c:"t-abq"},{t:"Abaqus",n:"손상모델 + 서브모델",c:"t-abq"},{t:"fe-safe",n:"충격 후 잔류 피로",c:"t-safe"},{t:"Isight",n:"낙하 자세 자동화",c:"t-isight"},{t:"Python",n:"파손 위험 맵",c:"t-python"}],
+   stats:["파손 위치 예측 정확도 >85%","낙하 자세 자동화 100%","Explicit 안정성 ↑","시험 반복 70%↓"]},
+
+  {id:33, industry:"disp",
+   label:"Securing Stiffness in Ultra-Thin Products",sub:"초박형 강성 · 경량화 · 좌굴",color:"#0f6e56",
+   apps:["OLED","FOLD","MLED","PHONE","WEAR"],
+   tag:{t:"Stiffness",bg:"#e1f5ee",c:"#0f6e56"},tools:["Abaqus","Tosca","Isight"],
+   desc:"박형·경량 디자인 유지하며 충분한 강성·내구성 확보",
+   pairs:[
+    {pain:"두께 감축 vs. 강성 확보의 트레이드오프 정량적 설계 가이드 부재",sol:"Tosca 위상·치수 최적화",desc:"강성 제약 + 무게·두께 목표 함수 → 보강재 위치/형상 자동 최적화, 재료 30%↓ 강성 동등 유지"},
+    {pain:"패널·미들프레임·배면 강성 기여도 분리 분석 불가",sol:"Abaqus 모드 해석 + 강성 매트릭스",desc:"각 부품별 굽힘·비틀림 강성 기여도 분해, 약한 고리 정량 식별 → 효과적 보강 위치 도출"},
+    {pain:"국소 누름 시험(Localized Push) 좌굴·움푹임(dimpling) 예측 어려움",sol:"Abaqus 비선형 좌굴 + 접촉",desc:"손가락 누름·펜 압력 등 점하중 비선형 좌굴 해석, 임계 하중·후좌굴 거동 정밀 예측"},
+    {pain:"새 디자인마다 강성 시험 반복 → 출시 일정 지연",sol:"Isight DOE + Surrogate",desc:"두께·재료·보강재 위치 변수 → 강성/무게 응답면 구축, 설계 변경 즉시 영향 평가"}
+   ],
+   proc:[{t:"Abaqus",n:"강성·모드 해석",c:"t-abq"},{t:"Abaqus",n:"비선형 좌굴",c:"t-abq"},{t:"Tosca",n:"위상/치수 최적화",c:"t-tosca"},{t:"Isight",n:"DOE + 응답면",c:"t-isight"},{t:"Python",n:"강성 자동 비교",c:"t-python"}],
+   stats:["재료 사용량 30%↓","강성 동등 유지","최적화 응답 시간 50%↓","좌굴 임계하중 오차 <12%"]},
+
+  {id:34, industry:"disp",
+   label:"Thermal Deformation and Warpage Control",sub:"열변형 · 잔류응력 · 동작 발열",color:"#ba7517",
+   apps:["OLED","MLED","FOLD","PHONE","AUTO"],
+   tag:{t:"Thermal Warpage",bg:"#faeeda",c:"#854f0b"},tools:["Abaqus","Isight"],
+   desc:"공정·동작 온도 변화에 의한 워피지 및 잔류응력 관리",
+   pairs:[
+    {pain:"라미네이션·합착 공정의 다층 CTE 불일치 워피지 예측 어려움",sol:"Abaqus 열-구조 순차 연성",desc:"공정 온도 이력 → 단계별 누적 변형 정확 계산, 다층 박막 구조 워피지 예측 오차 <15%"},
+    {pain:"동작 발열(국소 발광)에 의한 열 변형이 광학 성능 저해",sol:"Abaqus 열-구조 + 광학 좌표 변형 연계",desc:"발광 영역 발열 분포 → 패널 변형 → 광학 좌표 시프트 정량화, OLED 픽셀 위치 변화 예측"},
+    {pain:"Shadow Moiré 측정과 FEA 워피지 결과 불일치 원인 분석 어려움",sol:"Isight 재료 역해석",desc:"실측 워피지 데이터를 목표값으로 CTE·E 자동 보정, 검증된 재료 파라미터 셋 확보"},
+    {pain:"Automotive 환경(−40~+95°C) 워피지 누적 영향 시험 시간 과다",sol:"Abaqus 가속 열사이클 + Isight DOE",desc:"AEC-Q100 Grade 3 온도 프로파일 직접 입력, 사이클별 잔류응력 누적 자동 추적"}
+   ],
+   proc:[{t:"Abaqus",n:"다층 라미네이션 모델",c:"t-abq"},{t:"Abaqus",n:"열-구조 순차 연성",c:"t-abq"},{t:"Abaqus",n:"동작 발열 연계",c:"t-abq"},{t:"Isight",n:"재료 역해석",c:"t-isight"},{t:"Python",n:"Moiré 비교 자동화",c:"t-python"}],
+   stats:["워피지 예측 오차 <15%","광학 좌표 변화 정량화","재해석 시간 60%↓","Auto 환경 사이클 자동화"]},
+
+  {id:35, industry:"disp",
+   label:"Automotive OLED Reliability",sub:"진동 · 열사이클 · 충격 · 가혹 환경",color:"#0f6e56",
+   apps:["OLED","AUTO","MLED"],
+   tag:{t:"Auto OLED",bg:"#dbeae3",c:"#0f6e56"},tools:["Abaqus","fe-safe","Isight","CST"],
+   desc:"차량 환경(진동·열사이클·충격·EMI)에서 OLED 디스플레이 장기 신뢰성",
+   pairs:[
+    {pain:"AEC-Q100/Q104 가혹 조건(−40~+105°C, 1000+ 사이클) 시험에 6개월 이상 소요",sol:"Abaqus 가속 열사이클 + fe-safe",desc:"AEC-Q 온도 프로파일 직접 입력, 솔더·계면·OLED 적층 사이클별 손상 누적 자동 평가"},
+    {pain:"차량 진동(Random vibration, 5~2000Hz) 영향 사전 예측 불가",sol:"Abaqus Random Response 해석",desc:"ISO 16750-3 PSD 입력, 디스플레이 마운트·패널 공진 및 누적 손상 직접 평가, fe-safe Vibration Fatigue 연계"},
+    {pain:"패널 외부 EMI/EMC 요구사항(CISPR 25) 변형 후 영향 분석 불가",sol:"Abaqus → CST Studio 연계",desc:"진동·열에 의한 디스플레이 변형 형상을 CST로 전달 → 전자기 방사·내성 재평가, 단일 워크플로우"},
+    {pain:"AEC 인증을 위한 다목적 신뢰성 동시 보증이 부서별 따로 진행",sol:"3DX 통합 디지털 트윈",desc:"열·진동·충격·EMI 결과를 단일 플랫폼에 통합, 인증 패키지 자동 생성 — 검증 시간 50%↓"}
+   ],
+   proc:[{t:"Abaqus",n:"AEC-Q 열사이클",c:"t-abq"},{t:"Abaqus",n:"Random vibration",c:"t-abq"},{t:"Abaqus",n:"낙하·충격 Explicit",c:"t-abq"},{t:"fe-safe",n:"진동 + 열피로",c:"t-safe"},{t:"CST",n:"EMI/EMC 연계",c:"t-cst"},{t:"3DX",n:"통합 디지털 트윈",c:"t-3dx"}],
+   stats:["AEC 시험 대체율 60%↑","진동 피로 예측 오차 <18%","EMI 재해석 70%↓","인증 사이클 50%↓"]},
+
+  /* ====== MOBILE DEVICE ====== */
+  {id:40, industry:"mob",
+   label:"Smartphone Drop & Structural Integrity",sub:"풀-디바이스 낙하 · 구조 파손",color:"#534ab7",
+   apps:["PHONE","FOLD","OLED"],
+   tag:{t:"Phone Drop",bg:"#eeedfe",c:"#534ab7"},tools:["Abaqus","Isight"],
+   desc:"스마트폰 풀-디바이스 낙하·충격에서 프레임·디스플레이·배터리 보호",
+   pairs:[
+    {pain:"풀-디바이스 낙하 해석(프레임·PCB·디스플레이·배터리) 통합 모델 구축 어려움",sol:"Abaqus/Explicit 풀-디바이스 모델",desc:"수십 개 부품 접촉·동적 거동을 단일 Explicit 모델에서 일관 처리, 충격 파동 전파 자연스럽게 캡처"},
+    {pain:"낙하 자세(코너/엣지/플랫) 30+ 시나리오 수동 설정 부담",sol:"Isight 낙하 자세 자동 배치",desc:"낙하 각도·높이·표면 변수화 → 자동 배치 실행, 최악 케이스 자동 식별, 시험 우선순위 자동 도출"},
+    {pain:"Mid-frame 알루미늄·티타늄 합금 비선형 거동 예측 어려움",sol:"Abaqus Johnson-Cook + 손상 모델",desc:"고변형률 응력-변형률 거동 정확 재현, 프레임 영구 변형·균열 사전 예측"},
+    {pain:"낙하 후 잔류 변형이 후속 동작 신뢰성에 미치는 영향 추적 불가",sol:"Abaqus 순차 해석(낙하 → 일상 사용)",desc:"Explicit 낙하 결과 → Standard 정적 해석 초기조건, 잔류 변형 누적 영향 연속 평가"}
+   ],
+   proc:[{t:"Abaqus",n:"풀-디바이스 모델",c:"t-abq"},{t:"Abaqus",n:"Explicit 낙하 해석",c:"t-abq"},{t:"Abaqus",n:"순차 잔류 영향",c:"t-abq"},{t:"Isight",n:"자세 자동 배치",c:"t-isight"},{t:"Python",n:"위험 시나리오 랭킹",c:"t-python"}],
+   stats:["풀-디바이스 모델 정확도 >85%","낙하 자세 자동화 100%","수동 설정 시간 80%↓","최악 케이스 자동 식별"]},
+
+  {id:41, industry:"mob",
+   label:"Wearable Comfort & Reliability",sub:"웨어러블 · 곡면 · 인체 접촉",color:"#854f0b",
+   apps:["WEAR","OLED","FOLD"],
+   tag:{t:"Wearable",bg:"#f7e6d3",c:"#854f0b"},tools:["Abaqus","Tosca"],
+   desc:"스마트워치·이어버드 등 웨어러블의 곡면 강성·인체 접촉·내구성",
+   pairs:[
+    {pain:"손목 굽힘·압력 등 인체 접촉 하중 조건 정의 데이터 부재",sol:"Abaqus 인체-디바이스 접촉 해석",desc:"손목·귀 형상 모델에 디바이스 장착, 다양한 접촉 압력 시나리오 시뮬레이션"},
+    {pain:"방수(IP68)·낙하 복합 신뢰성 동시 검증 불가",sol:"Abaqus 다물리 통합 해석",desc:"수압 + 충격 하중 동시 인가, 가스킷 시일·O-링 변형 정밀 추적"},
+    {pain:"곡면 패널의 초박형 박막 응력 집중 위치 예측 어려움",sol:"Abaqus 박막 셸 + 서브모델링",desc:"곡률 반경·박막 두께·점착층 두께 변수, 응력 집중부 자동 식별"},
+    {pain:"경량화 vs. 강성 확보 트레이드오프 설계 가이드 부재",sol:"Tosca 위상최적화",desc:"무게 목표·강성 제약 동시 만족하는 내부 구조 자동 도출"}
+   ],
+   proc:[{t:"Abaqus",n:"인체 접촉 모델",c:"t-abq"},{t:"Abaqus",n:"방수 + 낙하 다물리",c:"t-abq"},{t:"Abaqus",n:"곡면 박막 해석",c:"t-abq"},{t:"Tosca",n:"경량화 최적화",c:"t-tosca"},{t:"Python",n:"종합 평가 자동화",c:"t-python"}],
+   stats:["접촉 압력 분포 정량화","IP68+낙하 동시 검증","박막 응력 정밀도 ↑","경량화 25%↑ 강성 유지"]},
+
+  {id:42, industry:"mob",
+   label:"Antenna & RF Performance Coupling",sub:"안테나 · RF · 구조 변형 영향",color:"#0d4f8f",
+   apps:["PHONE","WEAR","FOLD"],
+   tag:{t:"Antenna RF",bg:"#e0eef7",c:"#0d4f8f"},tools:["CST","Abaqus","3DX"],
+   desc:"디바이스 구조 변형이 안테나/RF 성능에 미치는 영향 분석 (CST 강점)",
+   pairs:[
+    {pain:"낙하·폴딩 후 안테나 변형이 RF 성능에 미치는 영향 정량화 불가",sol:"Abaqus → CST Studio 연계",desc:"FEA 변형 형상을 CST에 직접 입력, S-parameter·방사 패턴 변화 정밀 평가"},
+    {pain:"5G mmWave 안테나 모듈의 열-구조-EM 다물리 영향 분석 어려움",sol:"CST + Abaqus 다물리 공동 해석",desc:"발열 → 열변형 → 안테나 시프트 → S11 변화를 단일 워크플로우에서 평가"},
+    {pain:"Hand effect(손 접촉)에 의한 안테나 성능 저하 예측 어려움",sol:"CST Bio-EM + Abaqus 접촉",desc:"손 모델 접촉 압력 + EM 흡수율 동시 평가, 사용자 시나리오별 최악 조건 도출"},
+    {pain:"폴더블 디바이스 폴딩 상태별 안테나 성능 변화 데이터 부재",sol:"CST + Abaqus 폴딩 시퀀스",desc:"펼침/반접힘/완전 접힘 단계별 안테나 좌표 → S-parameter 시퀀스 자동 평가"}
+   ],
+   proc:[{t:"Abaqus",n:"구조 변형 해석",c:"t-abq"},{t:"Abaqus",n:"발열·열변형",c:"t-abq"},{t:"CST",n:"S-param·방사패턴",c:"t-cst"},{t:"CST",n:"Bio-EM 흡수율",c:"t-cst"},{t:"3DX",n:"다물리 통합",c:"t-3dx"}],
+   stats:["RF 성능 변동 정량화","S11 예측 오차 <2dB","Hand effect 정밀 모사","폴딩 상태별 평가 자동화"]},
+
+  /* ====== BATTERY ====== */
+  {id:50, industry:"bat",
+   label:"Battery Pack Mechanical Integrity",sub:"진동 · 충격 · 압축 시험",color:"#0f6e56",
+   apps:["BAT","EV","PHONE","WEAR"],
+   tag:{t:"Battery Mech",bg:"#dff0e6;",c:"#0f6e56"},tools:["Abaqus","fe-safe","Isight"],
+   desc:"리튬이온 배터리 셀·팩의 진동·충격·압축에 대한 구조 무결성",
+   pairs:[
+    {pain:"UN 38.3·SAE J2464 시험을 시제품으로 반복 시험 → 비용·일정 부담",sol:"Abaqus/Explicit 충격 + 압축 해석",desc:"UN 38.3 진동·충격·압축 표준 직접 모사, 셀 내부 변형 및 분리막 손상 위험 예측"},
+    {pain:"내부 단락 발생 임계 변형량 정량화 불가",sol:"Abaqus 셀 내부 분리막 모델 + 손상 기준",desc:"분리막·전극·집전체 다층 구조 모델링, 단락 임계 변형 예측 → 안전 설계 마진 확보"},
+    {pain:"EV 팩 진동 누적 손상 예측에 막대한 시험 시간",sol:"Abaqus + fe-safe Vibration Fatigue",desc:"ISO 16750-3 PSD 입력, 셀 마운트·접속 단자 누적 손상 자동 평가"},
+    {pain:"팩 형상·셀 배열 설계 변경 시 강성 재평가 시간 과다",sol:"Tosca + Isight 형상 최적화",desc:"강성·무게·열전달 다목적 최적화, 신규 팩 디자인 검증 시간 60%↓"}
+   ],
+   proc:[{t:"Abaqus",n:"UN 38.3 충격·압축",c:"t-abq"},{t:"Abaqus",n:"분리막·전극 다층 모델",c:"t-abq"},{t:"Abaqus",n:"Random vibration",c:"t-abq"},{t:"fe-safe",n:"진동 피로",c:"t-safe"},{t:"Tosca",n:"팩 형상 최적화",c:"t-tosca"},{t:"Isight",n:"다목적 DOE",c:"t-isight"}],
+   stats:["UN 38.3 시뮬레이션 대체율 70%","단락 임계 변형 예측 정확도","진동 누적 손상 자동화","팩 검증 시간 60%↓"]},
+
+  {id:51, industry:"bat",
+   label:"Thermal Runaway & Cooling",sub:"열폭주 · 냉각 시스템 · 열관리",color:"#a32d2d",
+   apps:["BAT","EV"],
+   tag:{t:"Thermal Runaway",bg:"#fcebeb",c:"#a32d2d"},tools:["Abaqus","Isight","3DX"],
+   desc:"리튬이온 배터리 열폭주(Thermal Runaway) 전파 및 냉각 시스템 설계",
+   pairs:[
+    {pain:"단일 셀 열폭주가 인접 셀로 전파되는 물리 현상 모델링 어려움",sol:"Abaqus 열-화학 반응 연성",desc:"발열 반응 모델(Arrhenius) + 열전도 + 환기 가스 흐름을 단일 모델에서 처리, 전파 시간·온도 정밀 예측"},
+    {pain:"냉각 플레이트·냉각수 채널 설계 최적화에 막대한 CFD 반복 비용",sol:"Abaqus 열유체 + Isight DOE",desc:"채널 형상·유량·냉각수 변수화, 셀 최대 온도 최소화 설계 자동 탐색"},
+    {pain:"열폭주 방지 절연재(Aerogel·Mica) 효과 정량 평가 어려움",sol:"Abaqus 다층 절연 모델 + 가속 시뮬레이션",desc:"절연재 두께·재료별 열전파 지연 시간 자동 비교, UN GTR 20 EV 안전 기준 대응"},
+    {pain:"열·전기·기계 다물리 영향이 부서별 분산 분석 → 설계 지연",sol:"3DX 디지털 트윈 통합",desc:"전기적 단락 → 발열 → 구조 변형 → 가스 배출까지 단일 디지털 트윈에서 추적"}
+   ],
+   proc:[{t:"Abaqus",n:"열-화학 반응 연성",c:"t-abq"},{t:"Abaqus",n:"냉각 채널 열유체",c:"t-abq"},{t:"Abaqus",n:"절연재 다층 모델",c:"t-abq"},{t:"Isight",n:"냉각 DOE 최적화",c:"t-isight"},{t:"3DX",n:"디지털 트윈 통합",c:"t-3dx"},{t:"Python",n:"안전 마진 자동 평가",c:"t-python"}],
+   stats:["열폭주 전파 정확도 >85%","냉각 최적화 응답 시간 50%↓","UN GTR 20 인증 자동 대응","다물리 통합 단일 플랫폼"]},
+
+  {id:52, industry:"bat",
+   label:"Cycle Life & Electrochemical-Mechanical Coupling",sub:"충방전 수명 · 팽창 · SEI 성장",color:"#136d3a",
+   apps:["BAT","EV"],
+   tag:{t:"Cycle Life",bg:"#d6f0e0",c:"#136d3a"},tools:["Abaqus","fe-safe","Isight"],
+   desc:"충방전 사이클에 따른 셀 팽창·수축, 응력 누적 및 수명 예측",
+   pairs:[
+    {pain:"충방전 시 활물질 팽창(Si 음극 +300%)에 의한 응력 누적 모델링 어려움",sol:"Abaqus 전기화학-기계 연성 (UMAT)",desc:"SOC 의존 부피 변화 모델, 사이클 누적 잔류 응력 → 수명 영향 정밀 예측"},
+    {pain:"SEI 성장·균열 등 미세 열화 메커니즘 시뮬레이션 부재",sol:"Abaqus + Python 다중 스케일",desc:"입자 레벨 SEI 모델 → 셀 레벨 평균 거동 매핑, 수명 열화 모델 정밀화"},
+    {pain:"팩 모듈에서 셀 팽창에 의한 인접 부품 응력·접촉 변화 추적 불가",sol:"Abaqus 팩-셀 연성 모델",desc:"셀 팽창 → 모듈 프레임 응력 → 접속 단자 변형까지 연속 추적"},
+    {pain:"수명 시험 1000+ 사이클 데이터 수집에 6개월 이상 소요",sol:"Isight + ML 수명 가속 예측",desc:"소수 FEA 결과로 Surrogate 수명 모델 학습, 시험 100× 가속"}
+   ],
+   proc:[{t:"Abaqus",n:"전기화학-기계 연성",c:"t-abq"},{t:"Abaqus",n:"다중 스케일 SEI",c:"t-abq"},{t:"Abaqus",n:"팩-셀 연성",c:"t-abq"},{t:"fe-safe",n:"사이클 피로 수명",c:"t-safe"},{t:"Isight",n:"수명 DOE",c:"t-isight"},{t:"ML",n:"수명 Surrogate",c:"t-ml"}],
+   stats:["사이클 응력 예측 오차 <15%","SEI 모델 정밀화 (다중스케일)","팩 변형 자동 추적","수명 시험 가속 100×"]}
+];
+
+const ML=[
+  {tag:"Surrogate Model",title:"FEA 대리 모델 (Surrogate)",desc:"소수의 Abaqus 해석 결과로 신경망·GP 학습 → 수천 케이스를 초 단위 예측",proc:[{t:"Abaqus",n:"학습 데이터 생성",c:"t-abq"},{t:"Isight",n:"DOE 샘플링",c:"t-isight"},{t:"Python",n:"NN/GP 모델 학습",c:"t-python"},{t:"ML",n:"실시간 추론",c:"t-ml"}]},
+  {tag:"Inverse Identification",title:"재료 역해석 자동화",desc:"측정 데이터(워피지·변위) → 재료 상수 자동 추정, Bayesian 최적화 활용",proc:[{t:"Python",n:"시험 데이터 입력",c:"t-python"},{t:"ML",n:"Bayesian 최적화",c:"t-ml"},{t:"Abaqus",n:"검증 해석",c:"t-abq"},{t:"3DX",n:"재료 DB 업데이트",c:"t-3dx"}]},
+  {tag:"Defect Detection",title:"결함 자동 검출 (CNN)",desc:"FEA 응력 필드를 이미지 변환 → CNN 기반 크랙 위험 영역 자동 분류·마킹",proc:[{t:"Abaqus",n:"응력 필드 추출",c:"t-abq"},{t:"Python",n:"필드 이미지 변환",c:"t-python"},{t:"ML",n:"CNN 결함 분류",c:"t-ml"},{t:"Python",n:"위험 맵 리포트",c:"t-python"}]},
+  {tag:"RL Optimization",title:"강화학습 공정 최적화",desc:"Isight DOE 데이터로 환경 구성 → RL 에이전트가 공정 조건 자동 탐색, 전역 최적해",proc:[{t:"Isight",n:"DOE 환경 데이터",c:"t-isight"},{t:"ML",n:"RL 에이전트 학습",c:"t-ml"},{t:"Python",n:"정책 실행 자동화",c:"t-python"},{t:"Abaqus",n:"최적 조건 검증",c:"t-abq"}]},
+  {tag:"Lifetime Prediction",title:"멀티피직스 수명 예측 (LSTM)",desc:"열·구조·피로 해석 결과를 feature로 LSTM 수명 예측 → fe-safe 대비 100× 속도",proc:[{t:"Abaqus",n:"물리장 feature 추출",c:"t-abq"},{t:"fe-safe",n:"수명 라벨 생성",c:"t-safe"},{t:"ML",n:"LSTM 학습",c:"t-ml"},{t:"Python",n:"실시간 수명 추론",c:"t-python"}]},
+  {tag:"Auto Reporting",title:"해석 결과 자동 보고 (LLM)",desc:"ODB 후처리 → LLM 기반 결과 요약 → 표준 리포트 자동 생성 및 3DX 업로드",proc:[{t:"Python",n:"ODB 자동 후처리",c:"t-python"},{t:"ML",n:"LLM 결과 요약",c:"t-ml"},{t:"Python",n:"리포트 자동 생성",c:"t-python"},{t:"3DX",n:"플랫폼 업로드",c:"t-3dx"}]}
+];
+
+/* JEDEC full table */
+const JEDEC_ROWS=[
+  {std:"JESD22-A104",cat:"thermal",cls:"jb-thermal",name:"Temperature Cycling (TCT)",cond:"조건 A: −55~+85°C / B: −55~+125°C / C: −65~+150°C, 15 min dwell",sim:"Abaqus Anand 점소성 + fe-safe Coffin-Manson",note:"가장 대표적인 열피로 시험, 솔더 조인트 주 적용"},
+  {std:"JESD22-A110",cat:"thermal",cls:"jb-thermal",name:"HAST (Highly Accelerated Temp & Humidity Stress)",cond:"130°C / 85%RH, 96h or 264h",sim:"Abaqus 흡습-구조 연성 + 수분 의존 CZM",note:"MSL 시험과 연계, HAST 조건 FEA 직접 재현 가능"},
+  {std:"JESD22-A103",cat:"thermal",cls:"jb-thermal",name:"High Temperature Storage Life (HTSL/HTS)",cond:"125°C / 150°C / 175°C, 1000h+",sim:"Abaqus IMC 확산-구조 연성 + UMAT 열화 모델",note:"IMC 성장 모델링이 핵심, Abaqus diffusion 모듈 활용"},
+  {std:"JESD22-A113",cat:"moist",cls:"jb-moist",name:"Preconditioning (Moisture Sensitivity)",cond:"125°C bake → 60°C/60%RH soak → 3× reflow (260°C)",sim:"Abaqus 흡습 확산 + 수증기압-구조 연성",note:"J-STD-020 MSL 등급 분류의 선행 조건"},
+  {std:"J-STD-020",cat:"moist",cls:"jb-moist",name:"MSL Classification (Moisture Sensitivity Level)",cond:"MSL 1(무제한)~MSL 6(즉시 사용), 60°C or 30°C / 60%RH",sim:"Isight MSL 조건 파라미터 DOE + Python 자동 분류",note:"Popcorn crack 예측이 핵심 — Abaqus 수증기압 해석"},
+  {std:"JESD22-B111",cat:"mech",cls:"jb-drop",name:"Board Level Drop Test",cond:"1500G / 0.5ms half-sine, 3축 각 30회",sim:"Abaqus/Explicit 동적 해석 + 서브모델링",note:"JESD22-B111A(2003), BGA/CSP 주 대상"},
+  {std:"JESD22-B110",cat:"mech",cls:"jb-mech",name:"Mechanical Shock",cond:"500~30000G / 0.3~18ms, half-sine or sawtooth",sim:"Abaqus/Explicit 충격 해석 + 가속도 시간이력 입력",note:"부품 레벨 충격, B111과 달리 보드 장착 없이 가능"},
+  {std:"JESD22-B113",cat:"mech",cls:"jb-mech",name:"Board Level Cyclic Bend Test",cond:"±1~4mm 변위, 1Hz, 1000 사이클",sim:"Abaqus 반복 굽힘 + fe-safe 굽힘 피로수명",note:"IPC/JEDEC-9702와 함께 적용, 굽힘 강성 검증 병행"},
+  {std:"IPC/JEDEC-9702",cat:"mech",cls:"jb-mech",name:"Monotonic Bend Characterization",cond:"3점·4점 지지, 단조 굽힘, 변위 제어",sim:"Abaqus 비선형 접촉 굽힘 + CZM 파단 하중 예측",note:"Board level 굽힘 강성 및 솔더 파단 하중 기준"},
+  {std:"JESD22-B104",cat:"mech",cls:"jb-mech",name:"Mechanical Shock (Component Level)",cond:"100~10000G, 다양한 펄스 형태",sim:"Abaqus/Explicit 부품 레벨 충격 해석",note:"B110과 유사하나 적용 대상·조건 범위 다름"},
+  {std:"JESD22-A106",cat:"thermal",cls:"jb-thermal",name:"Thermal Shock (Liquid-to-Liquid)",cond:"0°C ↔ +100°C, 열충격 속도 >25°C/s",sim:"Abaqus 열충격 급변 온도 구배 해석",note:"공기 열사이클(A104)보다 전이 속도 빠름"},
+  {std:"JESD22-A119",cat:"moist",cls:"jb-hast",name:"Autoclave (Pressure Cooker Test, PCT)",cond:"121°C / 100%RH / 2atm, 96~168h",sim:"Abaqus 고온고압 수분 확산 + 계면 열화 모델",note:"PCT는 HAST보다 가혹, 봉지재 내구성 평가"},
+  {std:"JESD22-B117",cat:"mech",cls:"jb-drop",name:"Solder Ball Shear",cond:"전단 속도 0.001~1000 mm/s, 상온 또는 고온",sim:"Abaqus 솔더 볼 전단 해석 + 속도 의존 재료 모델",note:"솔더 접합 강도 기준값 추출, 재료 교정에 활용"},
+  {std:"JESD22-B115",cat:"mech",cls:"jb-mech",name:"Solder Ball Pull",cond:"인장 속도·하중 제어, 상온 표준",sim:"Abaqus 솔더 볼 인장 해석 + CZM 계면 파단",note:"전단 시험과 함께 접합 강도 데이터베이스 구성"},
+  {std:"JEP150",cat:"moist",cls:"jb-hast",name:"Moisture Sensitivity Levels for Non-Hermetic Packages",cond:"MSL 분류 가이드라인, J-STD-020 기반",sim:"Isight + Python MSL 자동 분류 파이프라인",note:"패키지 취급·보관 조건 규정, 흡습 해석 기준 문서"}
+];
+
+/* ── Render helpers ── */
+function steps(proc){
+  return proc.map((s,i)=>`
+    <div class="proc-step"><span class="ptool ${s.c}">${s.t}</span><span class="pname">${s.n}</span></div>
+    ${i<proc.length-1?'<span class="parr">→</span>':''}
+  `).join('');
+}
+function toolTag(t){
+  const m={Abaqus:"t-abq","fe-safe":"t-safe",Isight:"t-isight",Tosca:"t-tosca",Python:"t-python",ML:"t-ml","3DX":"t-3dx",CST:"t-cst"};
+  return `<span class="ov-ttag ${m[t]||'t-abq'}">${t}</span>`;
+}
+function appTag(key){
+  const a=APP_TAGS[key];
+  if(!a) return '';
+  return `<span class="app-tag ${a.cls}">${a.label}</span>`;
+}
+function appTags(keys){
+  if(!keys||!keys.length) return '';
+  return `<div class="app-tags">${keys.map(appTag).join('')}</div>`;
+}
+function matchCards(pairs){
+  return pairs.map(p=>`
+    <div class="match-card">
+      <div class="match-pain"><div class="m-icon-p">!</div><div class="match-pain-text">${p.pain}</div></div>
+      <div class="match-sol"><div class="m-icon-s">✓</div>
+        <div><div class="match-sol-title">${p.sol}</div><div class="match-sol-desc">${p.desc}</div></div>
+      </div>
+    </div>`).join('');
+}
+
+/* TCAD page */
+function renderTCAD(){
+  return `
+    <div class="dh">
+      <div><div class="dh-title">TCAD 디바이스 설계 → 패키지 FEA 연계</div>
+      <div class="dh-sub">공정 시뮬레이션 결과를 구조 해석 초기 조건으로 이어받는 통합 워크플로우</div>
+      <div class="dh-apps">${appTags(["CPU","GPU","HBM","DRAM","NAND","NPU"])}</div>
+      </div>
+      <div class="dh-tag" style="background:#faeeda;color:#633806;border:0.5px solid #85500b44">TCAD</div>
+    </div>
+    <div class="info-box"><b>TCAD의 역할:</b> Sentaurus, Silvaco 등 TCAD 툴은 도핑 프로파일·이온 주입·산화 공정 등을 시뮬레이션해 전기적 특성을 추출합니다. 이 결과(온도 이력, 잔류 도핑 응력)를 Abaqus로 가져와 <b>패키지 레벨 구조 해석의 초기 조건</b>으로 사용하는 것이 핵심 연계 포인트입니다.</div>
+    <div class="sec-lbl">TCAD → FEA 통합 워크플로우 (5단계)</div>
+    <div style="display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px;margin-bottom:16px">
+      <div class="tcad-step"><div class="tcad-step-num">STEP 1</div><div class="tcad-step-title">공정 시뮬레이션</div><div class="tcad-step-desc">Sentaurus/Silvaco — 도핑, 산화, 이온주입, 확산</div></div>
+      <div class="tcad-step"><div class="tcad-step-num">STEP 2</div><div class="tcad-step-title">열-기계 응력 추출</div><div class="tcad-step-desc">공정 온도 이력 → 잔류응력 필드, CTE 불일치 계산</div></div>
+      <div class="tcad-step"><div class="tcad-step-num">STEP 3</div><div class="tcad-step-title">데이터 변환</div><div class="tcad-step-desc">Python 스크립트 → Abaqus INP 초기조건(*INITIAL CONDITIONS) 자동 생성</div></div>
+      <div class="tcad-step"><div class="tcad-step-num">STEP 4</div><div class="tcad-step-title">패키지 FEA</div><div class="tcad-step-desc">Abaqus — 다이 레벨 응력을 초기조건으로 패키지 전체 열-구조 해석</div></div>
+      <div class="tcad-step"><div class="tcad-step-num">STEP 5</div><div class="tcad-step-title">신뢰성 평가</div><div class="tcad-step-desc">fe-safe → 피로수명 / Isight → 최적화 / 3DX → 이력 관리</div></div>
+    </div>
+    <div class="sec-lbl">Pain Point → SIMULIA 솔루션 매칭</div>
+    <div class="match-grid">
+      ${matchCards([
+        {pain:"TCAD 온도 이력·잔류응력을 FEA 초기조건으로 자동 변환하는 체계 부재",sol:"Python 자동 변환 스크립트",desc:"TCAD 출력(netcdf/csv) → *INITIAL CONDITIONS 키워드로 자동 변환, Abaqus INP에 직접 삽입"},
+        {pain:"다이 레벨 잔류응력이 패키지 레벨 해석에 미치는 영향 정량화 어려움",sol:"Abaqus 다이-패키지 계층 서브모델",desc:"TCAD 잔류응력을 다이 레벨 초기조건으로 적용 → 서브모델로 패키지 전체 응력 분포 재계산"},
+        {pain:"전기적 특성(캐리어 이동도 등)이 구조적 변형에 의해 변화하는 Piezoresistive 효과 미반영",sol:"Abaqus 열-전기-구조 연성",desc:"압저항 계수 행렬을 UMAT으로 정의, 구조 변형 → 전기 특성 변화를 단일 모델에서 동시 계산"},
+        {pain:"공정 시뮬레이션 설계 변경 시 FEA 재설정에 과도한 시간 소요",sol:"Isight + Python 자동화 파이프라인",desc:"TCAD 파라미터 변경 → 데이터 변환 → Abaqus 해석 → 결과 비교까지 전 과정 자동화"}
+      ])}
+    </div>
+    <div class="proc-section">
+      <div class="sec-lbl">통합 파이프라인</div>
+      <div class="proc-row">${steps([
+        {t:"TCAD",n:"공정 시뮬레이션",c:"t-tcad"},
+        {t:"Python",n:"TCAD→INP 변환",c:"t-python"},
+        {t:"Abaqus",n:"패키지 열-구조 해석",c:"t-abq"},
+        {t:"Abaqus",n:"다이-패키지 서브모델",c:"t-abq"},
+        {t:"fe-safe",n:"피로수명 평가",c:"t-safe"},
+        {t:"Isight",n:"설계 최적화",c:"t-isight"},
+        {t:"3DX",n:"이력 관리",c:"t-3dx"}
+      ])}</div>
+    </div>
+    <div class="sec-lbl">참고 성과 지표</div>
+    <div class="stat-row">
+      <div class="stat-card"><div class="stat-num">100%</div><div class="stat-lbl">TCAD→FEA 변환 자동화</div></div>
+      <div class="stat-card"><div class="stat-num">3×</div><div class="stat-lbl">다이-패키지 연계 정밀도</div></div>
+      <div class="stat-card"><div class="stat-num">80%↓</div><div class="stat-lbl">재설정 수작업 시간</div></div>
+      <div class="stat-card"><div class="stat-num">단일</div><div class="stat-lbl">플랫폼 내 데이터 일관성</div></div>
+    </div>`;
+}
+
+/* Reliability detail page (REL items) */
+function renderRel(r){
+  return `
+    <div class="dh">
+      <div><div class="dh-title">${r.label}</div><div class="dh-sub">${r.desc}</div>
+      <div class="dh-apps">${appTags(r.apps)}</div>
+      </div>
+      <div class="dh-tag" style="background:${r.tag.bg};color:${r.tag.c};border:0.5px solid ${r.tag.c}44">${r.tag.t}</div>
+    </div>
+    <div class="info-box">
+      <b>적용 JEDEC 규격:</b> ${r.jedec}<br>
+      <b>시험 조건:</b> ${r.jedec_cond}
+    </div>
+    <div class="sec-lbl">Pain Point → SIMULIA 솔루션 매칭</div>
+    <div class="match-grid">${matchCards(r.pairs)}</div>
+    <div class="proc-section">
+      <div class="sec-lbl">해석 워크플로우</div>
+      <div class="proc-row">${steps(r.proc)}</div>
+    </div>
+    <div class="sec-lbl">참고 성과 지표</div>
+    <div class="stat-row">
+      ${r.stats.map(s=>`<div class="stat-card"><div class="stat-lbl" style="font-size:12px;color:var(--t1);font-weight:500">${s}</div></div>`).join('')}
+    </div>`;
+}
+
+/* Pain domain detail */
+function renderDetail(d){
+  return `
+    <div class="dh">
+      <div><div class="dh-title">${d.label}</div><div class="dh-sub">${d.desc}</div>
+      <div class="dh-apps">${appTags(d.apps)}</div>
+      </div>
+      <div class="dh-tag" style="background:${d.tag.bg};color:${d.tag.c};border:0.5px solid ${d.tag.c}44">${d.tag.t}</div>
+    </div>
+    <div class="sec-lbl">Pain Point → SIMULIA 솔루션 매칭</div>
+    <div class="match-grid">${matchCards(d.pairs)}</div>
+    <div class="proc-section">
+      <div class="sec-lbl">해석 워크플로우</div>
+      <div class="proc-row">${steps(d.proc)}</div>
+    </div>
+    <div class="sec-lbl">참고 성과 지표</div>
+    <div class="stat-row">
+      ${d.stats.map(s=>`<div class="stat-card"><div class="stat-lbl" style="font-size:12px;color:var(--t1);font-weight:500">${s}</div></div>`).join('')}
+    </div>`;
+}
+
+/* JEDEC full table */
+function renderJEDEC(){
+  const catMap={thermal:"Thermal",moist:"Moisture / MSL",mech:"Mechanical"};
+  const cats=["thermal","moist","mech"];
+  return `
+    <div class="dh">
+      <div><div class="dh-title">JEDEC 신뢰성 규격 전체 목록</div>
+      <div class="dh-sub">반도체 패키지 적용 주요 JEDEC/IPC 규격 및 SIMULIA 해석 매핑</div></div>
+      <div class="dh-tag" style="background:#e6f1fb;color:#185fa5;border:0.5px solid #85b7eb44">Standards</div>
+    </div>
+    <div class="info-box">
+      <b>범례:</b>
+      <span class="jedec-badge jb-thermal" style="margin:0 4px">Thermal</span>
+      <span class="jedec-badge jb-moist" style="margin:0 4px">Moisture/MSL</span>
+      <span class="jedec-badge jb-mech" style="margin:0 4px">Mechanical</span>
+      <span class="jedec-badge jb-drop" style="margin:0 4px">Drop/Shock</span>
+      <span class="jedec-badge jb-hast" style="margin:0 4px">HAST/PCT</span>
+      — 각 규격명 클릭 시 해당 시뮬레이션 상세 화면으로 이동합니다.
+    </div>
+    ${cats.map(cat=>{
+      const rows=JEDEC_ROWS.filter(r=>r.cat===cat);
+      return `
+        <div class="sec-lbl">${catMap[cat]} 시험</div>
+        <table class="jedec-table" style="margin-bottom:20px">
+          <thead><tr>
+            <th style="width:130px">규격번호</th>
+            <th style="width:200px">규격명</th>
+            <th style="width:200px">시험 조건</th>
+            <th>SIMULIA 해석 방법</th>
+            <th style="width:160px">비고</th>
+          </tr></thead>
+          <tbody>
+            ${rows.map(r=>`<tr>
+              <td><span class="jedec-std">${r.std}</span><br><span class="jedec-badge ${r.cls}" style="margin-top:3px;display:inline-block">${r.cls.replace('jb-','').toUpperCase()}</span></td>
+              <td>${r.name}</td>
+              <td style="font-size:10px;color:var(--t2)">${r.cond}</td>
+              <td><span style="font-size:11px;font-weight:500;color:var(--t1)">${r.sim}</span></td>
+              <td style="font-size:10px;color:var(--t3)">${r.note}</td>
+            </tr>`).join('')}
+          </tbody>
+        </table>`;
+    }).join('')}`;
+}
+
+/* ML */
+function renderML(){
+  return `
+    <div class="dh">
+      <div><div class="dh-title">ML / DL 시뮬레이션 파이프라인</div>
+      <div class="dh-sub">Isight → Python → ML/DL — High-tech 산업 전반 해석 가속화 및 자동화</div></div>
+      <div class="dh-tag" style="background:#fbeaf0;color:#993556;border:0.5px solid #d4537e44">ML/DL</div>
+    </div>
+    <div class="ml-highlight">
+      <div class="ml-hl-head"><span class="ml-badge">핵심 전략</span><span class="ml-hl-title">FEA는 정확도, ML은 속도 — 물리 기반 데이터로 학습하는 하이브리드 구조</span></div>
+      <div class="ml-hl-desc">Abaqus/fe-safe/Isight로 생성한 <b>물리 기반 데이터</b>를 학습 데이터로 활용해 Surrogate 모델을 구축합니다. 설계 탐색·실시간 예측은 ML이, 최종 검증만 FEA가 담당해 전체 파이프라인 속도를 수십~수백 배 향상합니다. — Semiconductor·Display·Mobile·Battery 모든 산업에 공통 적용.</div>
+    </div>
+    <div class="sec-lbl">ML/DL 적용 시나리오 (6가지)</div>
+    <div class="ml-grid">
+      ${ML.map(c=>`<div class="ml-card"><div class="ml-tag">${c.tag}</div><div class="ml-title">${c.title}</div><div class="ml-desc">${c.desc}</div><div class="proc-row">${steps(c.proc)}</div></div>`).join('')}
+    </div>
+    <div class="proc-section">
+      <div class="sec-lbl">전체 통합 파이프라인</div>
+      <div class="proc-row">${steps([
+        {t:"TCAD",n:"공정 시뮬레이션",c:"t-tcad"},{t:"Abaqus",n:"FEA 물리 해석",c:"t-abq"},
+        {t:"fe-safe",n:"피로수명 라벨",c:"t-safe"},{t:"Isight",n:"DOE 샘플링",c:"t-isight"},
+        {t:"Python",n:"전처리 · 학습",c:"t-python"},{t:"ML",n:"Surrogate 추론",c:"t-ml"},
+        {t:"Isight",n:"ML 기반 최적화",c:"t-isight"},{t:"Abaqus",n:"최종 FEA 검증",c:"t-abq"},
+        {t:"3DX",n:"이력 저장",c:"t-3dx"}
+      ])}</div>
+    </div>
+    <div class="sec-lbl" style="margin-top:4px">성과 지표</div>
+    <div class="stat-row">
+      <div class="stat-card"><div class="stat-num">100×</div><div class="stat-lbl">Surrogate 추론 속도</div></div>
+      <div class="stat-card"><div class="stat-num">>95%</div><div class="stat-lbl">대리 모델 예측 정확도</div></div>
+      <div class="stat-card"><div class="stat-num">80%↓</div><div class="stat-lbl">FEA 실행 횟수 절감</div></div>
+      <div class="stat-card"><div class="stat-num">0</div><div class="stat-lbl">리포트 생성 수동 작업</div></div>
+    </div>`;
+}
+
+/* Overview */
+function renderOverview(){
+  // industry summary cards
+  const indKeys = ["semi","disp","mob","bat"];
+  const indCounts = {
+    semi: D.filter(d=>d.industry==="semi").length + REL.filter(r=>r.industry==="semi").length + 1, // +1 for TCAD
+    disp: D.filter(d=>d.industry==="disp").length,
+    mob:  D.filter(d=>d.industry==="mob").length,
+    bat:  D.filter(d=>d.industry==="bat").length
+  };
+  const indSummary = `
+    <div class="ind-summary-grid">
+      ${indKeys.map(k=>{
+        const ind=INDUSTRIES[k];
+        return `
+          <div class="ind-summary-card ${k}" onclick="goIndustry('${k}')">
+            <div class="ind-summary-icon" style="color:${ind.color}">${ind.icon}</div>
+            <div class="ind-summary-title">${ind.label}</div>
+            <div class="ind-summary-sub">${ind.sub}</div>
+            <div class="ind-summary-meta"><span>${indCounts[k]} domains</span><span style="margin-left:auto;color:${ind.color};font-weight:600">View →</span></div>
+          </div>`;
+      }).join('')}
+    </div>`;
+
+  const renderDomainCards = (industry) => {
+    const items = D.filter(d=>d.industry===industry);
+    return items.map(d=>`
+      <div class="ov-card" onclick="go(${d.id},document.getElementById('nav-${d.id}'))">
+        <div class="ov-top"><div class="ov-dot" style="background:${d.color}"></div>
+          <div class="ov-title">${d.label}</div><div class="ov-cnt">${d.pairs.length} cases</div></div>
+        <div class="ov-desc">${d.desc}</div>
+        <div class="ov-tags">${d.tools.map(toolTag).join('')}</div>
+        ${appTags(d.apps)}
+      </div>`).join('');
+  };
+
+  const relCards=REL.map(r=>`
+    <div class="ov-card" onclick="go(${r.id},document.getElementById('nav-${r.id}'))">
+      <div class="ov-top"><div class="ov-dot" style="background:${r.color}"></div>
+        <div class="ov-title">${r.label}</div><div class="ov-cnt">${r.pairs.length} cases</div></div>
+      <div class="ov-desc">${r.jedec.split(',')[0]}</div>
+      <div class="ov-tags"><span class="ov-ttag t-abq">Abaqus</span><span class="ov-ttag t-safe">fe-safe</span></div>
+      ${appTags(r.apps)}
+    </div>`).join('');
+
+  return `
+    ${indSummary}
+
+    <!-- SEMICONDUCTOR -->
+    <div class="ind-banner" style="background:linear-gradient(90deg,#e6f1fb22,transparent);border-color:#185fa544">
+      <div class="ind-banner-icon" style="background:#e6f1fb;color:#185fa5">◆</div>
+      <div class="ind-banner-text">
+        <div class="ind-banner-title">Semiconductor</div>
+        <div class="ind-banner-sub">Memory (DRAM/HBM/NAND) · CPU/GPU/NPU · TCAD · JEDEC 신뢰성</div>
+      </div>
+      <div class="ind-banner-cnt">${indCounts.semi} domains</div>
+    </div>
+
+    <div class="sec-lbl">디바이스 / 공정</div>
+    <div class="ov-grid" style="grid-template-columns:1fr">
+      <div class="ov-card" onclick="go(10,document.getElementById('nav-10'))">
+        <div class="ov-top"><div class="ov-dot" style="background:#633806"></div>
+          <div class="ov-title">TCAD 디바이스 설계 → FEA 연계</div><div class="ov-cnt">4 cases</div></div>
+        <div class="ov-desc">공정 시뮬레이션 온도 이력·잔류응력 → Abaqus 초기조건 자동 연계 파이프라인</div>
+        <div class="ov-tags"><span class="ov-ttag t-tcad">TCAD</span><span class="ov-ttag t-abq">Abaqus</span><span class="ov-ttag t-python">Python</span></div>
+        ${appTags(["CPU","GPU","HBM","DRAM","NAND","NPU"])}
+      </div>
+    </div>
+    <div class="sec-lbl">JEDEC 신뢰성 시험 시뮬레이션</div>
+    <div class="ov-grid">${relCards}</div>
+    <div class="sec-lbl">패키지 설계 Pain Point 영역</div>
+    <div class="ov-grid">${renderDomainCards("semi")}</div>
+
+    <!-- DISPLAY -->
+    <div class="ind-banner" style="background:linear-gradient(90deg,#fbeaf022,transparent);border-color:#99355644">
+      <div class="ind-banner-icon" style="background:#fbeaf0;color:#993556">◆</div>
+      <div class="ind-banner-text">
+        <div class="ind-banner-title">Display</div>
+        <div class="ind-banner-sub">Foldable · OLED · MiniLED · Automotive Display 신뢰성</div>
+      </div>
+      <div class="ind-banner-cnt">${indCounts.disp} domains</div>
+    </div>
+    <div class="sec-lbl">디스플레이 Pain Point 영역</div>
+    <div class="ov-grid">${renderDomainCards("disp")}</div>
+
+    <!-- MOBILE -->
+    <div class="ind-banner" style="background:linear-gradient(90deg,#eeedfe22,transparent);border-color:#534ab744">
+      <div class="ind-banner-icon" style="background:#eeedfe;color:#534ab7">◆</div>
+      <div class="ind-banner-text">
+        <div class="ind-banner-title">Mobile Device</div>
+        <div class="ind-banner-sub">Smartphone · Wearable 풀-디바이스 신뢰성 · 안테나/RF</div>
+      </div>
+      <div class="ind-banner-cnt">${indCounts.mob} domains</div>
+    </div>
+    <div class="sec-lbl">모바일 디바이스 Pain Point 영역</div>
+    <div class="ov-grid">${renderDomainCards("mob")}</div>
+
+    <!-- BATTERY -->
+    <div class="ind-banner" style="background:linear-gradient(90deg,#e1f5ee22,transparent);border-color:#0f6e5644">
+      <div class="ind-banner-icon" style="background:#e1f5ee;color:#0f6e56">◆</div>
+      <div class="ind-banner-text">
+        <div class="ind-banner-title">Battery / ESS</div>
+        <div class="ind-banner-sub">리튬이온 셀·팩 · 열폭주 · 충방전 수명 · EV 안전</div>
+      </div>
+      <div class="ind-banner-cnt">${indCounts.bat} domains</div>
+    </div>
+    <div class="sec-lbl">배터리 Pain Point 영역</div>
+    <div class="ov-grid">${renderDomainCards("bat")}</div>
+
+    <!-- ML / DL -->
+    <div class="sec-lbl">ML / DL 가속화</div>
+    <div class="ov-grid" style="grid-template-columns:1fr">
+      <div class="ov-card" onclick="go(99,document.getElementById('nav-99'))" style="border-color:rgba(212,83,126,0.25)">
+        <div class="ov-top"><div class="ov-dot" style="background:#d4537e"></div>
+          <div class="ov-title">ML / DL 파이프라인 (전 산업 공통)</div><div class="ov-cnt">6 scenarios</div></div>
+        <div class="ov-desc">FEA 기반 Surrogate 모델, 강화학습 최적화, LLM 자동 보고 통합 파이프라인</div>
+        <div class="ov-tags">${['Python','ML','Isight'].map(toolTag).join('')}</div>
+      </div>
+    </div>
+
+    <div class="sec-lbl">전체 통합 워크플로우</div>
+    <div style="background:var(--surface);border:0.5px solid var(--bd1);border-radius:11px;padding:14px;margin-bottom:16px">
+      <div style="font-size:11px;color:var(--t3);margin-bottom:10px">TCAD → 패키지/디바이스 FEA → 신뢰성 검증 → ML 가속화 통합 체인</div>
+      <div class="proc-row">${steps([
+        {t:"TCAD",n:"공정 시뮬레이션",c:"t-tcad"},{t:"Abaqus",n:"디바이스/패키지 FEA",c:"t-abq"},
+        {t:"Abaqus",n:"다물리 연성",c:"t-abq"},{t:"Abaqus",n:"서브모델링",c:"t-abq"},
+        {t:"fe-safe",n:"피로수명",c:"t-safe"},{t:"CST",n:"EM/RF 연계",c:"t-cst"},
+        {t:"Isight",n:"DOE 최적화",c:"t-isight"},{t:"Python",n:"오케스트레이션",c:"t-python"},
+        {t:"ML",n:"Surrogate · 예측",c:"t-ml"},{t:"3DX",n:"이력 관리",c:"t-3dx"}
+      ])}</div>
+    </div>
+
+    <div class="sec-lbl">요약 지표</div>
+    <div class="stat-row">
+      <div class="stat-card"><div class="stat-num">4</div><div class="stat-lbl">High-tech 산업 커버</div></div>
+      <div class="stat-card"><div class="stat-num">${D.length + REL.length}+</div><div class="stat-lbl">Pain Point 도메인</div></div>
+      <div class="stat-card"><div class="stat-num">100×</div><div class="stat-lbl">ML Surrogate 속도</div></div>
+      <div class="stat-card"><div class="stat-num">80%↓</div><div class="stat-lbl">반복 해석 시간 절감</div></div>
+    </div>`;
+}
+
+/* Nav builders */
+function buildNav(){
+  // Semiconductor reliability nav
+  document.getElementById('rel-nav').innerHTML = REL.map(r=>`
+    <div class="sb-section" style="padding-top:1px;padding-bottom:1px">
+      <div class="nav-item" onclick="go(${r.id},this)" id="nav-${r.id}">
+        <div class="nav-dot" style="background:${r.color}"></div>
+        <div><div class="nav-label">${r.label}</div><div class="nav-sub">${r.sub}</div></div>
+      </div>
+    </div>`).join('');
+
+  const buildIndustryNav = (industry) => {
+    return D.filter(d=>d.industry===industry).map(d=>`
+      <div class="sb-section" style="padding-top:1px;padding-bottom:1px">
+        <div class="nav-item" onclick="go(${d.id},this)" id="nav-${d.id}">
+          <div class="nav-dot" style="background:${d.color}"></div>
+          <div><div class="nav-label">${d.label}</div><div class="nav-sub">${d.sub}</div></div>
+        </div>
+      </div>`).join('');
+  };
+
+  document.getElementById('nav-list-semi').innerHTML = buildIndustryNav("semi");
+  document.getElementById('nav-list-disp').innerHTML = buildIndustryNav("disp");
+  document.getElementById('nav-list-mob').innerHTML  = buildIndustryNav("mob");
+  document.getElementById('nav-list-bat').innerHTML  = buildIndustryNav("bat");
+}
+
+function go(idx,el){
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  if(el) el.classList.add('active');
+  const ca=document.getElementById('ca');
+  if(idx===-1)       ca.innerHTML=renderOverview();
+  else if(idx===10)  ca.innerHTML=renderTCAD();
+  else if(idx===98)  ca.innerHTML=renderJEDEC();
+  else if(idx===99)  ca.innerHTML=renderML();
+  else{
+    const r=REL.find(x=>x.id===idx);
+    const d=D.find(x=>x.id===idx);
+    ca.innerHTML = r ? renderRel(r) : renderDetail(d);
+  }
+  document.querySelector('.main').scrollTop=0;
+}
+
+/* Industry-specific overview page */
+function renderIndustry(key){
+  const ind = INDUSTRIES[key];
+  const items = D.filter(d=>d.industry===key);
+  const rels  = REL.filter(r=>r.industry===key);
+
+  const domainCards = items.map(d=>`
+    <div class="ov-card" onclick="go(${d.id},document.getElementById('nav-${d.id}'))">
+      <div class="ov-top"><div class="ov-dot" style="background:${d.color}"></div>
+        <div class="ov-title">${d.label}</div><div class="ov-cnt">${d.pairs.length} cases</div></div>
+      <div class="ov-desc">${d.desc}</div>
+      <div class="ov-tags">${d.tools.map(toolTag).join('')}</div>
+      ${appTags(d.apps)}
+    </div>`).join('');
+
+  const relCards = rels.map(r=>`
+    <div class="ov-card" onclick="go(${r.id},document.getElementById('nav-${r.id}'))">
+      <div class="ov-top"><div class="ov-dot" style="background:${r.color}"></div>
+        <div class="ov-title">${r.label}</div><div class="ov-cnt">${r.pairs.length} cases</div></div>
+      <div class="ov-desc">${r.jedec.split(',')[0]}</div>
+      <div class="ov-tags"><span class="ov-ttag t-abq">Abaqus</span><span class="ov-ttag t-safe">fe-safe</span></div>
+      ${appTags(r.apps)}
+    </div>`).join('');
+
+  // collect all unique applications used across this industry
+  const appSet = new Set();
+  items.forEach(d=>(d.apps||[]).forEach(a=>appSet.add(a)));
+  rels.forEach(r=>(r.apps||[]).forEach(a=>appSet.add(a)));
+  const appList = [...appSet].map(appTag).join('');
+
+  // count total pain-solution pairs
+  const totalPairs = items.reduce((s,d)=>s+d.pairs.length,0) + rels.reduce((s,r)=>s+r.pairs.length,0);
+
+  // tcad section only for semi
+  const tcadSection = (key==="semi") ? `
+    <div class="sec-lbl">디바이스 / 공정</div>
+    <div class="ov-grid" style="grid-template-columns:1fr">
+      <div class="ov-card" onclick="go(10,document.getElementById('nav-10'))">
+        <div class="ov-top"><div class="ov-dot" style="background:#633806"></div>
+          <div class="ov-title">TCAD 디바이스 설계 → FEA 연계</div><div class="ov-cnt">4 cases</div></div>
+        <div class="ov-desc">공정 시뮬레이션 온도 이력·잔류응력 → Abaqus 초기조건 자동 연계 파이프라인</div>
+        <div class="ov-tags"><span class="ov-ttag t-tcad">TCAD</span><span class="ov-ttag t-abq">Abaqus</span><span class="ov-ttag t-python">Python</span></div>
+        ${appTags(["CPU","GPU","HBM","DRAM","NAND","NPU"])}
+      </div>
+    </div>` : '';
+
+  const relSection = rels.length ? `
+    <div class="sec-lbl">JEDEC 신뢰성 시험 시뮬레이션</div>
+    <div class="ov-grid">${relCards}</div>` : '';
+
+  return `
+    <div class="dh">
+      <div>
+        <div class="dh-title" style="display:flex;align-items:center;gap:10px">
+          <span style="display:inline-flex;width:30px;height:30px;border-radius:8px;background:${ind.color}22;color:${ind.color};align-items:center;justify-content:center;font-size:16px">${ind.icon}</span>
+          ${ind.label}
+        </div>
+        <div class="dh-sub">${ind.sub}</div>
+        <div class="dh-apps">${appList}</div>
+      </div>
+      <div class="dh-tag" style="background:${ind.color}22;color:${ind.color};border:0.5px solid ${ind.color}66">Industry Overview</div>
+    </div>
+
+    <div class="stat-row">
+      <div class="stat-card"><div class="stat-num">${items.length + rels.length}</div><div class="stat-lbl">Pain Point 도메인</div></div>
+      <div class="stat-card"><div class="stat-num">${totalPairs}</div><div class="stat-lbl">Pain → Solution 케이스</div></div>
+      <div class="stat-card"><div class="stat-num">${appSet.size}</div><div class="stat-lbl">커버 Application</div></div>
+      <div class="stat-card"><div class="stat-num">SIMULIA</div><div class="stat-lbl">통합 워크플로우</div></div>
+    </div>
+
+    ${tcadSection}
+    ${relSection}
+
+    <div class="sec-lbl">${ind.label} Pain Point 영역</div>
+    <div class="ov-grid">${domainCards}</div>
+
+    <div class="info-box" style="margin-top:14px">
+      <b>차별화 포인트:</b> ${ind.label} 영역의 Pain Point를 SIMULIA 단일 워크플로우(Abaqus·fe-safe·Isight·Tosca·CST·3DEXPERIENCE)에서 일관 처리합니다. 부서·도구별 데이터 단절을 제거하고, 시험 대체율·설계 반복 속도 향상을 측정 가능한 KPI로 관리할 수 있습니다.
+    </div>`;
+}
+
+function goIndustry(key){
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('ca').innerHTML = renderIndustry(key);
+  document.querySelector('.main').scrollTop=0;
+}
+
+function toggleTheme(){
+  const html=document.documentElement;
+  const dark=html.getAttribute('data-theme')==='dark';
+  html.setAttribute('data-theme',dark?'light':'dark');
+  document.getElementById('ti').textContent=dark?'☀':'☾';
+  document.getElementById('tl').textContent=dark?'Light':'Dark';
+}
+
+function toggleSidebar(){
+  const sb=document.querySelector('.sidebar');
+  const collapsed=sb.classList.toggle('collapsed');
+  document.getElementById('sb-toggle-label').textContent = collapsed ? 'Show' : 'Hide';
+}
+
+buildNav();
+go(-1,document.getElementById('nav--1'));
+</script>
+</body>
+</html>
