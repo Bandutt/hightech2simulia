@@ -66,7 +66,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Helvetica Neue',sa
 .ind-banner-cnt{font-size:13px;color:var(--t2);background:var(--surf2);padding:3px 10px;border-radius:14px;font-weight:500}
 /* Application tags */
 .app-tags{display:flex;flex-wrap:wrap;gap:3px;margin-top:6px}
-.app-tag{font-size:11px;font-weight:500;padding:2px 7px;border-radius:8px;border:0.5px solid var(--bd1);background:var(--surf2);color:var(--t2);white-space:nowrap}
+.app-tag{font-size:11px;font-weight:500;padding:2px 7px;border-radius:8px;border:0.5px solid var(--bd1);background:var(--surf2);color:var(--t2);white-space:nowrap;cursor:pointer;transition:opacity 0.12s,transform 0.12s;user-select:none}
+.app-tag:hover{opacity:0.72;transform:scale(1.06)}
 .app-tag-cpu{background:#fde7e7;color:#a32d2d;border-color:#a32d2d33}
 .app-tag-gpu{background:#e8e3fc;color:#534ab7;border-color:#534ab733}
 .app-tag-npu{background:#fce8f0;color:#993556;border-color:#99355633}
@@ -193,6 +194,26 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Helvetica Neue',sa
 .ind-summary-sub{font-size:12px;color:var(--t3);margin-bottom:8px;line-height:1.4}
 .ind-summary-meta{font-size:12px;color:var(--t2);display:flex;gap:8px}
 .ind-summary-meta span{background:var(--surf2);padding:2px 8px;border-radius:8px}
+/* Tag filter */
+.tag-filter-bar{display:flex;align-items:center;gap:8px;padding:10px 16px;background:var(--accent-bg);border:0.5px solid var(--accent-bd);border-radius:11px;margin-bottom:16px;flex-wrap:wrap}
+.tag-filter-close{cursor:pointer;font-size:11px;color:var(--t2);padding:3px 10px;border-radius:8px;background:var(--surf2);border:0.5px solid var(--bd2);margin-left:auto;white-space:nowrap;transition:background 0.12s}
+.tag-filter-close:hover{background:var(--surf3)}
+/* PDF section */
+.pdf-section{margin-bottom:20px}
+.pdf-upload-area{border:1.5px dashed var(--bd2);border-radius:11px;padding:28px 20px;text-align:center;cursor:pointer;transition:background 0.15s,border-color 0.15s;background:var(--surf2)}
+.pdf-upload-area:hover{border-color:var(--accent-bd);background:var(--accent-bg)}
+.pdf-viewer-scroll{display:flex;flex-direction:column;gap:14px}
+.pdf-item{border:0.5px solid var(--bd2);border-radius:10px;overflow:hidden}
+.pdf-item-header{display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:var(--surf2);font-size:11px;color:var(--t2);font-weight:500;border-bottom:0.5px solid var(--bd1)}
+.pdf-iframe{width:100%;height:520px;border:none;display:block;background:#fff}
+.pdf-img{width:100%;display:block;object-fit:contain;max-height:600px;background:var(--surf2)}
+.pdf-download-btn{font-size:10px;padding:3px 10px;border-radius:8px;background:var(--accent-bg);color:var(--accent);text-decoration:none;border:0.5px solid var(--accent-bd);white-space:nowrap;transition:background 0.12s,color 0.12s}
+.pdf-download-btn:hover{background:var(--accent);color:#fff}
+.pdf-btn{font-size:11px;padding:5px 12px;border-radius:8px;background:var(--surf2);border:0.5px solid var(--bd2);color:var(--t2);cursor:pointer;transition:background 0.15s}
+.pdf-btn:hover{background:var(--surf3)}
+.pdf-file-chip{font-size:11px;padding:4px 10px;border-radius:20px;background:var(--accent-bg);color:var(--accent);border:0.5px solid var(--accent-bd);cursor:pointer;white-space:nowrap;display:inline-flex;align-items:center;gap:4px;transition:opacity 0.12s}
+.pdf-file-chip:hover{opacity:0.8}
+.pdf-add-row{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;align-items:center}
 </style>
 </head>
 <body>
@@ -280,7 +301,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Helvetica Neue',sa
     </div>
     <div class="top-bar-right">
       <div class="theme-toggle" onclick="toggleTheme()"><span id="ti">☀</span><span id="tl">Light</span></div>
-      <div class="badge">3DDashboard Widget</div>
+
     </div>
   </div>
   <div id="ca"></div>
@@ -422,12 +443,13 @@ const D=[
    label:"Thermal management",sub:"발열 · 핫스팟 · TIM",color:"#e24b4a",
    apps:["CPU","GPU","NPU","HBM"],
    tag:{t:"Thermal",bg:"#fcebeb",c:"#a32d2d"},tools:["Abaqus","Isight","fe-safe"],
-   desc:"전력 밀도 증가에 따른 핫스팟, 계면 열저항, 냉각 경로 설계",
+   pdfFile:"pdf/06_Thermal_Interface_Material_TIM.pdf",
+   desc:"전력 밀도 증가에 따른 핫스팟, 계면 열저항, TIM(열 계면 재료) Pump-out 현상 및 냉각 경로 설계",
    pairs:[
     {pain:"칩-기판 계면 열저항으로 인한 핫스팟 집중 예측 어려움",sol:"Abaqus 열-구조 연성 해석",desc:"열전도 + 접촉 열저항(TCC) 모델로 핫스팟 위치 및 온도 구배 정밀 예측"},
     {pain:"언더필·TIM 재료별 방열 성능 비교 데이터 부재",sol:"Isight 재료 파라미터 스윕",desc:"열전도율·점도·두께를 변수로 DOE → 최적 TIM 스펙 자동 도출"},
     {pain:"패키지 스택 구조에서 열경로 차단 지점 시각화 불가",sol:"Abaqus 3D 열유동 해석",desc:"복층 패키지 전 단면 온도장 출력, 열저항 네트워크 자동 추출"},
-    {pain:"열 사이클 시 계면 열저항 변화 추적 불가",sol:"fe-safe 열피로 이력 추적",desc:"열사이클마다 접촉 상태 변화와 열저항 drift를 ODB에서 직접 추출"}
+    {pain:"열 사이클 중 TIM(열 계면 재료)이 밖으로 밀려나는 Pump-out 현상으로 방열 성능 급격히 저하",sol:"Abaqus CEL 기법 TIM Assembly + Pump-out 해석",desc:"히트싱크(Lagrangian 요소) + TIM(Eulerian 요소) CEL 연성 모델, 조립 하중에 따른 BLT(Bond Line Thickness) 예측 → 열 사이클 중 Pump-out 임계 온도 자동 예측"}
    ],
    proc:[{t:"Abaqus",n:"열-구조 연성 모델",c:"t-abq"},{t:"Abaqus",n:"핫스팟·온도구배 추출",c:"t-abq"},{t:"Isight",n:"TIM DOE 스윕",c:"t-isight"},{t:"fe-safe",n:"열피로 수명 평가",c:"t-safe"},{t:"Python",n:"결과 자동 보고",c:"t-python"}],
    stats:["열저항 예측 오차 <10%","핫스팟 위치 일치율 >90%","DOE 실험 70% 감소","시험-해석 R²>0.95"]},
@@ -529,6 +551,111 @@ const D=[
    ],
    proc:[{t:"Abaqus",n:"열-전기 연성 해석",c:"t-abq"},{t:"Abaqus",n:"구조 변형 형상 추출",c:"t-abq"},{t:"CST",n:"EM 솔버 연계",c:"t-cst"},{t:"3DX",n:"다물리 결과 통합",c:"t-3dx"},{t:"ML",n:"변형-SI 영향 예측",c:"t-ml"}],
    stats:["열-전기 연성 오차 <8%","변형-SI 연계 자동화","EMI 재해석 시간 70% 단축","부서 간 데이터 실시간 공유"]},
+
+  {id:8, industry:"semi",
+   label:"Hybrid Bonding 표면조도에 따른 본딩성능 평가",sub:"Cu-Cu 직접 본딩 · 표면조도(Ra/Rz) · 접합강도",color:"#0d4f8f",
+   apps:["CPU","GPU","HBM","NPU"],
+   tag:{t:"Hybrid Bonding",bg:"#e0eef7",c:"#0d4f8f"},tools:["Abaqus","Isight","Python"],
+   pdfFile:"pdf/04_CMP_Chemical_Mechanical_Polishing.pdf",
+   desc:"Cu-Cu Hybrid Bonding 공정에서 표면조도(Ra/Rz)가 접합 강도 및 전기적 신뢰성에 미치는 영향 정량적 평가. CMP(Chemical Mechanical Polishing) 후 표면 상태가 본딩 품질을 결정함",
+   pairs:[
+    {pain:"표면조도(Ra) 조건별 Cu-Cu 직접 본딩 강도 시험에 수개월 소요, 최적 Ra 설계 가이드 부재",sol:"Abaqus 표면접촉 + CZM 계면 접합강도 해석",desc:"AFM 측정 표면 형상을 Abaqus 접촉 모델에 반영, Ra 0.1~2nm 범위별 실접촉 면적·계면 응력 자동 계산, 시험 대비 접합강도 오차 <15%"},
+    {pain:"어닐링 온도·시간에 따른 Cu 확산 접합 거동 및 공극 제거 모델링 어려움",sol:"Abaqus 확산-열-구조 연성 해석",desc:"Fick 확산 + 열팽창 + 접촉 압력을 연성 모델로 동시 처리, 어닐링 조건별 Cu 원자 확산·공극 소멸 거동 시뮬레이션"},
+    {pain:"CMP 후 잔류 표면 변형(Dishing·Erosion)이 본딩 품질에 미치는 영향 정량화 불가",sol:"Abaqus 순차 해석 (CMP → 본딩 공정)",desc:"CMP 공정 잔류응력·표면 형상 변화를 본딩 초기조건으로 이어받아 표면 평탄도와 접합 강도 연계 분석, 안전 Ra 한계 자동 도출"},
+    {pain:"표면조도 파라미터(Ra·Rz·Rq) 중 본딩 성능과 가장 상관성 높은 인자 특정 어려움",sol:"Isight DOE + Python 통계 분석",desc:"Ra/Rz/Rq 범위를 변수로 DOE → 접합 강도·전기 저항 응답면 구축, 최적 표면 사양 자동 도출 — 시험 횟수 80% 절감"}
+   ],
+   proc:[{t:"Abaqus",n:"표면접촉 모델 (AFM 형상)",c:"t-abq"},{t:"Abaqus",n:"확산-열-구조 연성 (어닐링)",c:"t-abq"},{t:"Abaqus",n:"CMP→본딩 순차 해석",c:"t-abq"},{t:"Isight",n:"표면조도 파라미터 DOE",c:"t-isight"},{t:"Python",n:"AFM 데이터 전처리·통계",c:"t-python"}],
+   stats:["Ra 최적 범위 자동 도출","접합강도 예측 오차 <15%","CMP-본딩 연계 해석 자동화","DOE로 시험 횟수 80% 절감"]},
+
+  {id:9, industry:"semi",
+   label:"Solder 물성에 따른 Surface Tension 및 Shear Test 평가",sub:"솔더 합금 물성 · 표면장력 · 전단강도 · 리플로우",color:"#1d9e75",
+   apps:["CPU","GPU","HBM","DRAM","NAND"],
+   tag:{t:"Solder Property",bg:"#e1f5ee",c:"#0f6e56"},tools:["Abaqus","Isight","fe-safe","Python"],
+   pdfFile:"pdf/05_Solder_Reflow_Process_FlipChip.pdf",
+   desc:"SAC·SnBi 등 솔더 합금 조성·물성에 따른 리플로우 중 표면장력(FSI) 기반 Self-alignment 거동 및 JESD22-B117 전단 시험 시뮬레이션. Abaqus 2025FD03/2026FD01에서 지원되는 Surface Tension 신기능 활용",
+   pairs:[
+    {pain:"솔더 합금별 표면장력 차이가 리플로우 후 범프 Self-alignment·최종 형상에 미치는 영향 실험만으로 예측 어려움",sol:"Abaqus Surface Tension (FSI) + 유체-구조 연성 해석",desc:"액체-기체 계면 표면장력 계수(γ_lv)·접촉각(θ_ls) 두 파라미터로 정의, Abaqus/Explicit General Contact과 연동하여 솔더 Self-alignment 동적 거동 정밀 재현. 범프 높이·폭 오차 <1%"},
+    {pain:"JESD22-B117 솔더 볼 전단 시험 조건(속도·온도)별 강도·파단 모드 데이터 확보에 수개월 소요",sol:"Abaqus 속도 의존 전단 해석 (Anand 점소성)",desc:"전단 속도 0.001~1000mm/s·온도 −40~+125°C 범위를 파라미터화, 솔더 볼 전단 강도·파단 모드(계면/벌크) 자동 예측, fe-safe 피로수명 연계"},
+    {pain:"SAC305·SnBi·SAC+X 합금 조성 변경 시 전체 신뢰성 재평가에 많은 시간 소요",sol:"Isight 합금 물성 스크리닝 DOE",desc:"합금 조성별 탄성계수·CTE·크리프 계수·표면장력 계수를 변수로 수명·전단강도·Self-alignment 응답면 구축, 최적 조성 자동 선별 — 신재료 도입 평가 시간 80% 단축"},
+    {pain:"언더필 경화 후 솔더 조인트 잔류응력과 전단 강도 상관관계 데이터 부재",sol:"Abaqus 순차 해석 (언더필 경화 → 전단 시험)",desc:"언더필 경화 수축 잔류응력을 초기조건으로 이어받아 전단 시험 재현, 언더필 유무·종류별 전단 강도 비교 자동화"}
+   ],
+   proc:[{t:"Abaqus",n:"Surface Tension FSI 모델",c:"t-abq"},{t:"Abaqus",n:"JESD22-B117 전단 해석",c:"t-abq"},{t:"Abaqus",n:"언더필→전단 순차 해석",c:"t-abq"},{t:"Isight",n:"합금 물성 DOE 스크리닝",c:"t-isight"},{t:"fe-safe",n:"전단 피로 수명",c:"t-safe"},{t:"Python",n:"물성-강도 상관 분석",c:"t-python"}],
+   stats:["Self-alignment 형상 오차 <1%","전단 강도 예측 정확도 >88%","합금 스크리닝 시간 80%↓","언더필 영향 자동 정량화"]},
+
+  {id:11, industry:"semi",
+   label:"AM 기법 활용 식각·증착 공정 잔류응력 해석",sub:"FEOL/BEOL · 산화·증착·식각 · 잔류응력 추적",color:"#633806",
+   apps:["CPU","GPU","DRAM","NAND","NPU"],
+   tag:{t:"Etch/Deposit",bg:"#faeeda",c:"#633806"},tools:["Abaqus","Python","Isight"],
+   pdfFile:"pdf/02_반도체제조_AM_식각_증착_공정해석.pdf",
+   desc:"Abaqus AM(Additive Manufacturing) 기능의 요소 활성화/비활성화(*ACTIVATE ELEMENT)를 활용하여 반도체 FEOL/BEOL 산화·증착·식각 공정 순서를 FEA로 재현, 각 단계 잔류응력 누적 추적",
+   pairs:[
+    {pain:"산화·CVD 증착·식각 각 단계에서 발생하는 잔류응력 누적 효과를 FEA로 모델링하기 어려움",sol:"Abaqus AM 기법 요소 활성화/비활성화",desc:"*ACTIVATE ELEMENT로 증착(Material Addition)·식각(Material Removal)을 순서대로 재현, 각 단계 초기응력 설정 → 전 공정 잔류응력 연속 추적 가능"},
+    {pain:"Si·SiO₂·Cu·Low-k 등 재료 간 CTE 불일치에 의한 박막 박리·크랙 발생 위치 사전 예측 불가",sol:"Abaqus 열-구조 순차 연성 (다층 박막)",desc:"온도 의존 탄성·크리프·점소성 비선형 재료 거동 포함, 가열/냉각 사이클 반복에 따른 응력 누적 및 박막 박리 위험 위치 자동 식별"},
+    {pain:"RTA·어닐링 등 급속 열처리 단계에서의 thermal shock과 warpage 영향을 공정 체인에 연계 불가",sol:"Abaqus 멀티스텝 분석 프레임워크",desc:"산화(800~1100°C) → 증착(CVD: 600~1100°C) → 어닐링(400~1000°C) → 리플로우(240~260°C) 전 단계를 하나의 Multi-step Analysis에서 순차 해석"},
+    {pain:"공정 파라미터(증착 두께·온도·순서) 변경 시 전체 잔류응력 재해석에 과도한 시간 소요",sol:"Isight 공정 파라미터 DOE + Python 자동화",desc:"증착 두께·CTE·공정 온도를 변수로 잔류응력·워피지 응답면 구축, 최적 공정 조건 자동 탐색 — 재해석 시간 70% 단축"}
+   ],
+   proc:[{t:"Abaqus",n:"AM 요소 활성화 (증착)",c:"t-abq"},{t:"Abaqus",n:"AM 요소 비활성화 (식각)",c:"t-abq"},{t:"Abaqus",n:"멀티스텝 열-구조 연성",c:"t-abq"},{t:"Isight",n:"공정 조건 DOE",c:"t-isight"},{t:"Python",n:"공정 이력 자동화",c:"t-python"}],
+   stats:["FEOL/BEOL 전 공정 잔류응력 추적","박막 박리 위치 예측 >85%","공정 파라미터 탐색 70% 단축","멀티스텝 자동화 100%"]},
+
+  {id:12, industry:"semi",
+   label:"EMC·언더필 접착제 경화 공정 시뮬레이션",sub:"Curing Kinetics · 경화 수축 · 워피지 · 잔류응력",color:"#993556",
+   apps:["CPU","GPU","HBM","DRAM","NAND","NPU"],
+   tag:{t:"Adhesive Curing",bg:"#fbeaf0",c:"#993556"},tools:["Abaqus","Isight","Python"],
+   pdfFile:"pdf/03_Adhesive_Curing_Simulation.pdf",
+   desc:"EMC 몰딩·언더필·접착제 경화 공정에서 발생하는 화학-열-구조 연성 현상 시뮬레이션. Kamal 경화 반응속도 모델로 경화도(DOC) 추적, 경화 수축·잔류응력·워피지를 단일 Abaqus 모델에서 예측",
+   pairs:[
+    {pain:"EMC 몰딩·언더필 경화 중 화학 반응에 의한 수축이 패키지 워피지에 미치는 영향 선형 해석으로 과소평가",sol:"Abaqus Cure Kinetics + 열-화학-구조 완전 연성",desc:"Kamal 모델로 경화도 α(0~1) 추적, 탄성계수 E(α,T)·점탄성·경화 수축률을 α 의존 함수로 정의, 경화→냉각→잔류응력 안정화까지 3단계 순차 해석"},
+    {pain:"언더필 경화 반응열(발열 반응)로 인한 온도 급상승과 그에 따른 추가 열팽창 미반영",sol:"Abaqus Coupled Temperature-Displacement + HETVAL",desc:"경화 반응 발열(q = ρQα̇)을 HETVAL 서브루틴으로 자동 계산, 경화 중 온도 급상승·열팽창을 구조 해석에 실시간 반영, 최대 온도 오차 <5°C"},
+    {pain:"경화 후 점탄성 응력 완화(Stress Relaxation)가 장기 워피지에 미치는 영향 단순 탄성 모델로 과대 예측",sol:"Abaqus Viscoelastic + TRS(Time-Temperature Superposition)",desc:"경화 완료 후 Visco Step으로 전환, Prony 급수·TRS 점탄성 모델로 응력 완화 자동 계산, 경화 후 1일 경과 시점의 최종 워피지·변형 예측"},
+    {pain:"접착제 종류(EMC·언더필·NCA) 변경 시 전체 해석 재설정 시간 과다",sol:"Isight DOE + Python 재료 스크리닝",desc:"경화 반응속도 상수(Z, E/R, m, n)·경화 수축률·열전도율을 변수로 DOE → 워피지·잔류응력 응답면 구축, 최적 재료 사양 자동 선별"}
+   ],
+   proc:[{t:"Abaqus",n:"Cure Kinetics (Kamal 모델)",c:"t-abq"},{t:"Abaqus",n:"Coupled Temp-Disp 경화 해석",c:"t-abq"},{t:"Abaqus",n:"Viscoelastic 응력 완화",c:"t-abq"},{t:"Isight",n:"재료 스크리닝 DOE",c:"t-isight"},{t:"Python",n:"DSC/DMA 데이터 피팅",c:"t-python"}],
+   stats:["경화 수축 워피지 예측 오차 <15%","발열 온도 예측 오차 <5°C","점탄성 장기 변형 자동 계산","재료 스크리닝 시간 80%↓"]},
+
+  {id:13, industry:"semi",
+   label:"CMP(Chemical Mechanical Polishing) 공정 해석",sub:"웨이퍼 평탄화 · Archard 마모 · Dishing/Erosion",color:"#534ab7",
+   apps:["CPU","GPU","DRAM","NAND","NPU"],
+   tag:{t:"CMP/Wear",bg:"#eeedfe",c:"#534ab7"},tools:["Abaqus","Isight","Python"],
+   pdfFile:"pdf/04_CMP_Chemical_Mechanical_Polishing.pdf",
+   desc:"반도체 FEOL/MOL/BEOL 평탄화(Planarization) 공정에서 패드-웨이퍼 Archard 마모 모델과 ALE 적응 메시를 활용하여 MRR·WIWNU·Dishing/Erosion을 정량적으로 예측",
+   pairs:[
+    {pain:"패드 강도(Soft/Hard Pad)별 MRR(Material Removal Rate)과 웨이퍼 두께 균일도 차이를 시험 없이 예측 불가",sol:"Abaqus Archard 마모 모델 + ALE 적응 메시",desc:"*WEAR SURFACE PROPERTIES로 마모 계수·접촉 압력·온도 의존성 정의, Abaqus/Explicit ALE로 대변형 마모 표면 자동 갱신, Soft/Hard Pad CWEAR 분포 자동 비교"},
+    {pain:"반복 CMP 사이클에 의한 누적 마모 추적에 대규모 계산 필요",sol:"Abaqus Step Cycling + 마모 스케일 팩터",desc:"1개 시뮬레이션 사이클이 N개 실제 사이클 대표, WEAR-BASED 정지 기준으로 목표 마모 깊이 자동 달성 시 해석 중단 — 연산 비용 10× 절감"},
+    {pain:"CMP 중 마찰열 → 재료 연화 → 마모율 변화 복합 효과를 Mechanical 해석만으로 과소평가",sol:"Abaqus 열-기계 완전 연성 (Thermo-Mechanical CMP)",desc:"마찰력 → 발열 → 온도 상승 → 패드 연화 → 마모율 업데이트 순환을 단일 Coupled Thermal-Stress 해석으로 처리, 실측 대비 MRR 오차 <15%"},
+    {pain:"다이 내 패턴 밀도 차이에 의한 Dishing·Erosion 불균일 분포 사전 예측 불가",sol:"Isight 패턴 파라미터 DOE + Python 자동 분석",desc:"패턴 밀도·폭·깊이를 변수로 Dishing/Erosion 응답면 구축, 취약 패턴 위치 자동 식별 → 패드 압력 분포 최적화 설계"}
+   ],
+   proc:[{t:"Abaqus",n:"Archard 마모 모델 설정",c:"t-abq"},{t:"Abaqus",n:"ALE 적응 메시 마모 해석",c:"t-abq"},{t:"Abaqus",n:"열-기계 연성 CMP 해석",c:"t-abq"},{t:"Isight",n:"패턴 파라미터 DOE",c:"t-isight"},{t:"Python",n:"CWEAR 자동 후처리",c:"t-python"}],
+   stats:["MRR 예측 오차 <15%","연산 비용 10× 절감 (Step Cycling)","Dishing/Erosion 자동 식별","열-기계 연성으로 정밀도 ↑"]},
+
+  {id:14, industry:"semi",
+   label:"HBM 다중 적층 기판 FE 모델링 자동화",sub:"Beam+Shell 적층 · 서브모델링 · Python 자동화",color:"#185fa5",
+   apps:["HBM","DRAM","CPU","GPU","NPU"],
+   tag:{t:"HBM Stacking",bg:"#dde9f8",c:"#185fa5"},tools:["Abaqus","Python","3DX"],
+   pdfFile:"pdf/07_HBM_Substrate_Stacking_FE_Modeling.pdf",
+   desc:"HBM 12~20단 적층 구조를 Beam(Bump)+Shell(Layer) 요소로 Python 자동화 모델링하고 Global->Sub Modeling 기법으로 국부 마이크로범프 응력을 정밀 해석. SIMULIA Cloud/3DX Simulation Manager 연계",
+   pairs:[
+    {pain:"HBM 12~20단 수만 개 마이크로범프를 3D 솔리드로 모델링 시 메시 규모가 수백만 요소 이상으로 현실적으로 해석 불가",sol:"Abaqus Beam(Bump)+Shell(Layer) 자동화 모델",desc:"Python Script로 Bump 좌표 txt 파일 읽어 Beam 요소 자동 생성, Layer Shell과 절점 Merge, Number of Layers만큼 자동 스택 → 전체 모델 구축 시간 90% 단축"},
+    {pain:"Beam+Shell 글로벌 모델로는 마이크로범프 개별 응력·변형 해상도 부족",sol:"Abaqus Global->Local 서브모델링",desc:"글로벌 Beam+Shell 해석 → 최대 응력 범프 자동 식별 → 3D 솔리드 서브모델 자동 연결, 국부 응력 정밀도 3~5× 향상, 검증 시간 70% 단축"},
+    {pain:"HBM 제조 도전 과제인 CTE 불일치 워피지·TSV 크랙을 설계 변경마다 재검증 시간 과다",sol:"Python+Isight 파라미터 스윕 자동화",desc:"다이 수·범프 피치·TSV 배치·언더필 종류를 변수로 워피지·범프 응력 자동 비교 → 최적 적층 사양 탐색, 시험 대비 설계 반복 속도 10×"},
+    {pain:"대규모 HBM FE 모델 해석에 온프레미스 서버 자원 부족",sol:"SIMULIA Cloud + 3DX Simulation Manager",desc:"Abaqus 최신 버전 HPC 클라우드 연동, 수백만 DOF 모델을 46코어 클라우드 자원으로 병렬 해석, 결과 이력 3DX 플랫폼 자동 저장"}
+   ],
+   proc:[{t:"Python",n:"Bump+Layer 자동화 모델 생성",c:"t-python"},{t:"Abaqus",n:"Beam+Shell 글로벌 해석",c:"t-abq"},{t:"Abaqus",n:"3D 서브모델 국부 해석",c:"t-abq"},{t:"Isight",n:"적층 파라미터 스윕",c:"t-isight"},{t:"3DX",n:"Cloud HPC + 결과 이력",c:"t-3dx"}],
+   stats:["모델 구축 시간 90% 단축","서브모델 정밀도 3–5×","설계 반복 속도 10×","클라우드 HPC 연동 100%"]},
+
+  {id:15, industry:"semi",
+   label:"PBC 주기 경계조건 기반 소재 균질화 (RVE)",sub:"Micromechanics · RVE · 균질화 · 등가 물성 추출",color:"#0f6e56",
+   apps:["CPU","GPU","HBM","DRAM","NAND","NPU"],
+   tag:{t:"PBC / RVE",bg:"#e1f5ee",c:"#0f6e56"},tools:["Abaqus","Python","Isight"],
+   pdfFile:"pdf/08_PBC_Periodic_Boundary_Conditions.pdf",
+   desc:"Abaqus/CAE Micromechanics Plugin으로 RVE(Representative Volume Element)에 주기 경계조건(PBC)을 부여, HBM 범프·기판 적층 복합 구조의 등가 탄성·CTE 물성을 자동 추출하여 글로벌 모델에 적용",
+   pairs:[
+    {pain:"HBM 범프+언더필+다이 복합 적층 구조의 등가 탄성계수·CTE를 실험으로 측정하기 매우 어려움",sol:"Abaqus Micromechanics Plugin PBC 균질화 해석",desc:"가장 작은 반복 단위(RVE) 식별 → 주기 경계조건 자동 부여 → 6방향 하중 인가 → 등가 탄성 텐서·CTE 자동 추출, 측정 대비 오차 <5%"},
+    {pain:"패턴이 다른 Bump Pitch별(A_SI, B_Stack 등) 복수 RVE Zone의 물성 추출에 반복 수작업 소요",sol:"Python 자동화 + Isight 배치 실행",desc:"RVE Zone 정의 → Python Script로 PBC 자동 생성 → Isight로 복수 Zone 배치 해석 → 균질화 물성 자동 표 생성, Zone당 물성 추출 시간 95% 단축"},
+    {pain:"PBC 적용 시 주기적 메시 요구 조건을 수작업으로 충족하기 어려움",sol:"Abaqus Micromechanics Plugin 자동 메시 매칭",desc:"Plugin이 RVE 상하좌우 면 노드 자동 페어링 → 주기성 제약 자동 적용, 비주기적 형상은 Taylor(균일 표면 구배) 경계조건으로 자동 대안 처리"},
+    {pain:"추출된 등가 물성의 정확도 검증을 위한 별도 실험 없이 신뢰하기 어려움",sol:"Abaqus 글로벌-RVE 결과 교차 검증",desc:"글로벌 단순화 모델(균질 물성) vs. 상세 RVE 모델 응력 분포 자동 비교, 오차 기준 초과 시 RVE Zone 자동 세분화 → 수렴 보장"}
+   ],
+   proc:[{t:"Abaqus",n:"Micromechanics Plugin PBC 설정",c:"t-abq"},{t:"Abaqus",n:"RVE 균질화 해석",c:"t-abq"},{t:"Python",n:"다중 RVE Zone 자동화",c:"t-python"},{t:"Isight",n:"배치 물성 추출",c:"t-isight"},{t:"Abaqus",n:"글로벌 모델 검증",c:"t-abq"}],
+   stats:["등가 물성 추출 오차 <5%","Zone당 추출 시간 95% 단축","PBC 메시 매칭 자동화","글로벌-RVE 교차 검증 자동"]},
 
   /* ====== DISPLAY ====== */
   {id:30, industry:"disp",
@@ -744,12 +871,47 @@ function toolTag(t){
 function appTag(key){
   const a=APP_TAGS[key];
   if(!a) return '';
-  return `<span class="app-tag ${a.cls}">${a.label}</span>`;
+  return `<span class="app-tag ${a.cls}" onclick="filterByTag('${key}');event.stopPropagation()" title="${a.label} 태그 필터">${a.label}</span>`;
 }
 function appTags(keys){
   if(!keys||!keys.length) return '';
   return `<div class="app-tags">${keys.map(appTag).join('')}</div>`;
 }
+/* -- Tag filter -- */
+function filterByTag(tagKey){
+  const a=APP_TAGS[tagKey];
+  if(!a) return;
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('ca').innerHTML=renderTagFilter(tagKey);
+  document.querySelector('.main').scrollTop=0;
+}
+function renderTagFilter(tagKey){
+  const a=APP_TAGS[tagKey];
+  const allCases=[
+    ...D.filter(d=>(d.apps||[]).includes(tagKey)),
+    ...REL.filter(r=>(r.apps||[]).includes(tagKey))
+  ];
+  const cards=allCases.map(item=>`
+    <div class="ov-card" onclick="go(${item.id},document.getElementById('nav-${item.id}'))">
+      <div class="ov-top"><div class="ov-dot" style="background:${item.color}"></div>
+        <div class="ov-title">${item.label}</div>
+        <div class="ov-cnt">${item.pairs.length} cases</div>
+      </div>
+      <div class="ov-desc">${item.desc||''}</div>
+      <div class="ov-tags">${(item.tools||['Abaqus','fe-safe']).map(toolTag).join('')}</div>
+      ${appTags(item.apps)}
+    </div>`).join('');
+  const empty=`<div style="text-align:center;padding:48px 20px;color:var(--t3);font-size:12px">해당 태그의 시뮬레이션 케이스가 없습니다.</div>`;
+  return `
+    <div class="tag-filter-bar">
+      <span class="app-tag ${a.cls}" style="font-size:11px;padding:3px 12px;cursor:default;pointer-events:none">${a.label}</span>
+      <span style="font-size:13px;color:var(--t1);font-weight:600">${a.label} 관련 시뮬레이션 케이스</span>
+      <span style="font-size:11px;color:var(--t3)">(${allCases.length}개)</span>
+      <span class="tag-filter-close" onclick="go(-1,document.getElementById('nav--1'))">✕ 전체 보기로 돌아가기</span>
+    </div>
+    ${allCases.length ? `<div class="ov-grid">${cards}</div>` : empty}`;
+}
+
 function matchCards(pairs){
   return pairs.map(p=>`
     <div class="match-card">
@@ -758,6 +920,98 @@ function matchCards(pairs){
         <div><div class="match-sol-title">${p.sol}</div><div class="match-sol-desc">${p.desc}</div></div>
       </div>
     </div>`).join('');
+}
+
+/* -- PDF Viewer (static pre-matched + dynamic upload) -- */
+const PDF_STORE={};
+
+function renderPDFSection(caseId, staticPdf){
+  const files=PDF_STORE[caseId]||[];
+  const hasStatic=!!staticPdf;
+  const hasExtra=files.length>0;
+  if(!hasStatic && !hasExtra){
+    return `
+      <div class="pdf-section">
+        <div class="sec-lbl">시뮬레이션 결과 자료 (PDF / 이미지)</div>
+        <div id="pdf-content-${caseId}">
+          <div class="pdf-upload-area" onclick="document.getElementById('pdf-input-${caseId}').click()">
+            <div style="font-size:30px;margin-bottom:8px;line-height:1">📄</div>
+            <div style="font-size:13px;font-weight:500;color:var(--t1);margin-bottom:4px">시뮬레이션 결과 PDF 또는 이미지 추가</div>
+            <div style="font-size:11px;color:var(--t3)">클릭하여 파일 선택 — PDF · PNG · JPG 지원</div>
+          </div>
+          <input type="file" id="pdf-input-${caseId}" accept=".pdf,image/*" multiple style="display:none" onchange="handlePDFUpload(${caseId},this)">
+        </div>
+      </div>`;
+  }
+  return `
+    <div class="pdf-section">
+      <div class="sec-lbl">시뮬레이션 결과 자료 (PDF / 이미지)</div>
+      <div id="pdf-content-${caseId}">${buildPDFContent(caseId,staticPdf)}</div>
+    </div>`;
+}
+function buildPDFContent(caseId,staticPdf){
+  const files=PDF_STORE[caseId]||[];
+  let html='';
+  if(staticPdf||files.length>0){
+    html+=`<div class="pdf-add-row">
+      <button class="pdf-btn" onclick="document.getElementById('pdf-add-${caseId}').click()">+ 파일 추가</button>
+      <input type="file" id="pdf-add-${caseId}" accept=".pdf,image/*" multiple style="display:none" onchange="handlePDFUpload(${caseId},this)">
+      ${files.map((f,i)=>`
+        <span class="pdf-file-chip" onclick="document.getElementById('pdf-item-${caseId}-${i+1}').scrollIntoView({behavior:'smooth',block:'start'})">
+          ${f.type==='application/pdf'?'📄':'🖼'} ${f.name}
+          <span onclick="removePDFItem(${caseId},${i},event)" style="opacity:0.55;font-size:10px;line-height:1">✕</span>
+        </span>`).join('')}
+    </div>
+    <div class="pdf-viewer-scroll">`;
+    if(staticPdf){
+      const fname=staticPdf.split('/').pop();
+      html+=`<div class="pdf-item" id="pdf-item-${caseId}-0">
+        <div class="pdf-item-header">
+          <span>📄 ${fname}</span>
+          <a href="${staticPdf}" download="${fname}" class="pdf-download-btn">⬇ 다운로드</a>
+        </div>
+        <iframe src="${staticPdf}#toolbar=0&navpanes=0&scrollbar=1" class="pdf-iframe"></iframe>
+      </div>`;
+    }
+    files.forEach((f,i)=>{
+      html+=`<div class="pdf-item" id="pdf-item-${caseId}-${i+1}">
+        <div class="pdf-item-header">
+          <span>${f.type==='application/pdf'?'📄':'🖼'} ${f.name}</span>
+          <a href="${f.url}" download="${f.name}" class="pdf-download-btn">⬇ 다운로드</a>
+        </div>
+        ${f.type==='application/pdf'
+          ?`<iframe src="${f.url}#toolbar=0&navpanes=0&scrollbar=1" class="pdf-iframe"></iframe>`
+          :`<img src="${f.url}" alt="${f.name}" class="pdf-img">`}
+      </div>`;
+    });
+    html+='</div>';
+  } else {
+    html+=`<div class="pdf-upload-area" onclick="document.getElementById('pdf-input-${caseId}').click()">
+      <div style="font-size:30px;margin-bottom:8px;line-height:1">📄</div>
+      <div style="font-size:13px;font-weight:500;color:var(--t1);margin-bottom:4px">시뮬레이션 결과 PDF 또는 이미지 추가</div>
+      <div style="font-size:11px;color:var(--t3)">클릭하여 파일 선택</div>
+    </div>
+    <input type="file" id="pdf-input-${caseId}" accept=".pdf,image/*" multiple style="display:none" onchange="handlePDFUpload(${caseId},this)">`;
+  }
+  return html;
+}
+function handlePDFUpload(caseId,input){
+  const files=Array.from(input.files);
+  if(!files.length) return;
+  if(!PDF_STORE[caseId]) PDF_STORE[caseId]=[];
+  files.forEach(f=>PDF_STORE[caseId].push({name:f.name,url:URL.createObjectURL(f),type:f.type}));
+  const item=D.find(x=>x.id===caseId)||REL.find(x=>x.id===caseId);
+  const el=document.getElementById(`pdf-content-${caseId}`);
+  if(el) el.innerHTML=buildPDFContent(caseId,item&&item.pdfFile?item.pdfFile:null);
+}
+function removePDFItem(caseId,idx,ev){
+  if(ev){ev.stopPropagation();ev.preventDefault();}
+  if(!PDF_STORE[caseId]) return;
+  URL.revokeObjectURL(PDF_STORE[caseId][idx].url);
+  PDF_STORE[caseId].splice(idx,1);
+  const item=D.find(x=>x.id===caseId)||REL.find(x=>x.id===caseId);
+  const el=document.getElementById(`pdf-content-${caseId}`);
+  if(el) el.innerHTML=buildPDFContent(caseId,item&&item.pdfFile?item.pdfFile:null);
 }
 
 /* TCAD page */
@@ -831,7 +1085,8 @@ function renderRel(r){
     <div class="sec-lbl">참고 성과 지표</div>
     <div class="stat-row">
       ${r.stats.map(s=>`<div class="stat-card"><div class="stat-lbl" style="font-size:14px;color:var(--t1);font-weight:500">${s}</div></div>`).join('')}
-    </div>`;
+    </div>
+    ${renderPDFSection(r.id, r.pdfFile||null)}`;
 }
 
 /* Pain domain detail */
@@ -852,7 +1107,8 @@ function renderDetail(d){
     <div class="sec-lbl">참고 성과 지표</div>
     <div class="stat-row">
       ${d.stats.map(s=>`<div class="stat-card"><div class="stat-lbl" style="font-size:14px;color:var(--t1);font-weight:500">${s}</div></div>`).join('')}
-    </div>`;
+    </div>
+    ${renderPDFSection(d.id, d.pdfFile||null)}`;
 }
 
 /* JEDEC full table */
